@@ -28,7 +28,7 @@ int main(int argc, char **argv)
 	}
 	else if (argc > 1) // At least one argument
 	{
-		while (1)
+		while (1) // Loop until getop_long doesn't find anything (then break)
 		{
 			static struct option long_options[] =
 			{
@@ -55,6 +55,10 @@ int main(int argc, char **argv)
 			switch (ret)
 			{
 			case 0: // Occurs for options that set flags (verbose or brief)
+				if (verbose_flag)
+					printf ("verbose flag set\n");
+				else
+					printf ("brief flag set\n");
 				break;
 			case 'r':	// rdonly
 				printf ("found \"rdonly\" with arguments ");
@@ -81,7 +85,8 @@ int main(int argc, char **argv)
 				printf("rdonly logicalfd[%d] is %d\n", fdInd, logicalfd[fdInd]);
 				
 				// TODO: don't go over max logicalfd size (100) or dynamicaly allocate more space
-				fdInd++;
+				// Temporary: wrap fdInd so you can't go past end of array
+				fdInd = (fdInd+1) % (sizeof(logicalfd)/sizeof(int)); // Will be '% 100'
 				
 				// Free argument string when done
 				free ((char*)rdpath);
@@ -111,7 +116,8 @@ int main(int argc, char **argv)
 				printf("wronly logicalfd[%d] is %d\n", fdInd, logicalfd[fdInd]);
 				
 				// TODO: don't go over max logicalfd size (100) or dynamicaly allocate more space
-				fdInd++;
+				// Temporary: wrap fdInd so you can't go past end of array
+				fdInd = (fdInd+1) % (sizeof(logicalfd)/sizeof(int)); // Will be '% 100'
 				
 				// Free argument string when done
 				free ((char*)wrpath);
@@ -142,10 +148,6 @@ int main(int argc, char **argv)
 				printf ("default case\n");
 			}
 		}
-		if (verbose_flag)
-			printf ("verbose flag set\n");
-		else
-			printf ("verbose flag not set\n");
 	}
 	exit(0);
 }
