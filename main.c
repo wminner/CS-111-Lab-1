@@ -15,6 +15,7 @@ int main(int argc, char **argv)
 	extern int optind;		// Gives the current option out of argc options
 	int tempind;
 	int index;
+	int fdTable[];			// File descriptor table. Key is logical fd. Value is real fd.
 
 	if (argc <= 1) // No arguments
 	{
@@ -65,6 +66,9 @@ int main(int argc, char **argv)
 					tempind++;
 				}
 				printf ("\n");
+				
+				// TODO: Do open file operation and create logical file descriptor
+				// openfile(...)
 				break;
 			case 'w':	// wronly
 				printf ("found \"wronly\" with arguments ");
@@ -81,6 +85,9 @@ int main(int argc, char **argv)
 					tempind++;
 				}
 				printf ("\n");
+				
+				// TODO: Do open file operation and create logical file descriptor
+				// openfile(...)
 				break;
 			case 'c':	// command
 				printf ("found \"command\" with arguments ");
@@ -97,6 +104,9 @@ int main(int argc, char **argv)
 					tempind++;
 				}
 				printf ("\n");
+				
+				// TODO: execute command with options in a child fork
+				// executecmd(...)
 				break;
 			case '?':
 				// printf ("unrecognized option\n"); // exit gracefully?

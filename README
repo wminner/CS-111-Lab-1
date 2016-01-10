@@ -26,5 +26,8 @@ Program functionality:
 
 Program TODO:
 * Error handling and exiting correctly
-* Detect arguments for options that require them
 * Do appropriate things for options and arguments
+* Verify number of arguments for options that require them
+	--rdonly (1)
+	--wronly (1)
+	--command (>= 4)
