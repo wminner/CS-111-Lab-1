@@ -72,14 +72,19 @@ int main(int argc, char **argv)
 				}
 				printf ("\n");
 				
+				// Copy argument string into a new allocated string
 				char *rdpath = (char*) malloc (strlen(optarg)+1);
 				strcpy(rdpath, optarg);
 				
-				// TODO: Do open file operation and create logical file descriptor
+				// Open file and save its file descriptor
 				logicalfd[fdInd] = openfile(rdpath, O_RDONLY);
+				printf("rdonly logicalfd[%d] is %d\n", fdInd, logicalfd[fdInd]);
+				
+				// TODO: don't go over max logicalfd size (100) or dynamicaly allocate more space
 				fdInd++;
+				
+				// Free argument string when done
 				free ((char*)rdpath);
-				printf("logicalfd[0] is %d\n", logicalfd[0]);
 				break;
 			case 'w':	// wronly
 				printf ("found \"wronly\" with arguments ");
@@ -97,11 +102,18 @@ int main(int argc, char **argv)
 				}
 				printf ("\n");
 				
-				const char *wrpath = (char*) malloc (strlen(optarg+index)+1);
+				// Copy argument string into a new allocated string
+				char *wrpath = (char*) malloc (strlen(optarg)+1);
+				strcpy(wrpath, optarg);
 				
-				// TODO: Do open file operation and create logical file descriptor
+				// Open file and save its file descriptor
 				logicalfd[fdInd] = openfile(wrpath, O_WRONLY);
+				printf("wronly logicalfd[%d] is %d\n", fdInd, logicalfd[fdInd]);
+				
+				// TODO: don't go over max logicalfd size (100) or dynamicaly allocate more space
 				fdInd++;
+				
+				// Free argument string when done
 				free ((char*)wrpath);
 				break;
 			case 'c':	// command
@@ -139,7 +151,7 @@ int main(int argc, char **argv)
 }
 
 // /* Wrapper for open */
-// int openfile(const char *pathname, int flags, mode_t mode)
+// int openfile(const char *pathname, int flags)
 // {
 	
 // }
