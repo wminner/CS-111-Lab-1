@@ -2,7 +2,7 @@
 #include <stdio.h> // printf
 
 #include <unistd.h>  // close, dup2, execvp, fork, getopt_long
-#include <sys/types.h> // open
+#include <fcntl.h> // open
 #include <signal.h> // sigaction
 #include <getopt.h> // struct option (longopts)
 
@@ -10,7 +10,11 @@ static int verbose_flag;
 
 int main(int argc, char **argv)
 {
-	int ret; // what getopt_long returns
+	int ret; 				// What getopt_long returns
+	extern char *optarg;	// Gives the option strings
+	extern int optind;		// Gives the current option out of argc options
+	int tempind;
+	int index;
 
 	if (argc <= 1) // No arguments
 	{
@@ -36,33 +40,75 @@ int main(int argc, char **argv)
 			int option_index = 0;
 
 			ret = getopt_long(argc, argv, "", long_options, &option_index);
-
-			if (ret == -1) // No more options found...
+			tempind = optind;
+			index = 0;
+			
+			if (ret == -1) // No more options found, then break out of while loop
 				break;
 
 			switch (ret)
 			{
-			case 0:
-				printf("found 0\n");
+			case 0: // Occurs for options that set flags (verbose or brief)
 				break;
-			case 'r':
-				printf("found rdonly\n");
+			case 'r':	// rdonly
+				printf ("found \"rdonly\" with arguments ");
+				// Process options while optind <= argc or encounter '--' 
+				while (tempind <= argc)
+				{
+					if (optarg[index] == '-') 
+						if (optarg[index+1] == '-') // Check for '--'
+							break;
+					printf ("\'%s\' ", optarg+index);
+					while (optarg[index] != '\0')
+						index++;
+					index++;
+					tempind++;
+				}
+				printf ("\n");
 				break;
-			case 'w':
-				printf("found wronly\n");
+			case 'w':	// wronly
+				printf ("found \"wronly\" with arguments ");
+				// Process options while optind <= argc or encounter '--' 
+				while (tempind <= argc)
+				{
+					if (optarg[index] == '-') 
+						if (optarg[index+1] == '-') // Check for '--'
+							break;
+					printf ("\'%s\' ", optarg+index);
+					while (optarg[index] != '\0')
+						index++;
+					index++;
+					tempind++;
+				}
+				printf ("\n");
 				break;
-			case 'c':
-				printf("found command\n");
+			case 'c':	// command
+				printf ("found \"command\" with arguments ");
+				// Process options while optind <= argc or encounter '--' 
+				while (tempind <= argc)
+				{
+					if (optarg[index] == '-') 
+						if (optarg[index+1] == '-') // Check for '--'
+							break;
+					printf ("\'%s\' ", optarg+index);
+					while (optarg[index] != '\0')
+						index++;
+					index++;
+					tempind++;
+				}
+				printf ("\n");
+				break;
+			case '?':
+				// printf ("unrecognized option\n"); // exit gracefully?
 				break;
 			default:
-				printf("default case\n");
+				printf ("default case\n");
 			}
 		}
 		if (verbose_flag)
-			printf("verbose flag set\n");
+			printf ("verbose flag set\n");
 		else
-			printf("verbose flag not set\n");
-		//printf ("options for argument %s is %s\n", argv[1], );
+			printf ("verbose flag not set\n");
 	}
 	exit(0);
 }
