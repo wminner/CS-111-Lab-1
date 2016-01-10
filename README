@@ -1,1 +1,30 @@
-readme stuff goes in here
+Wesley Minner and Jason Phuoc
+
+CS 111 Operating Systems Principles
+Professor Eggert
+Winter 2016
+
+***********************
+Lab 1 - Simpleton Shell
+***********************
+
+Makefile functionality:
+* make: compiles program 'simpsh'
+* make dist: packages files into tarball (not fully implemented)
+	TODO: all files should have names of the form lab1-youname/... and one of 
+	the files should be lab1-youname/Makefile
+* make check: TODO
+* make clean: removes all files from 'make'
+
+Program functionality:
+* Can detect the following options and print them out
+	--rdonly
+	--wronly
+	--command
+	--verbose
+	--brief
+
+Program TODO:
+* Error handling and exiting correctly
+* Detect arguments for options that require them
+* Do appropriate things for options and arguments
