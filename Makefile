@@ -6,7 +6,9 @@ CFLAGS = -g -Wall -Wextra
 DISTDIR = lab1-$(USER)
 
 SIMPSH_SOURCES = \
-  main.c
+  main.c \
+  openfile.c \
+  executecmd.c
 SIMPSH_OBJECTS = $(subst .c,.o,$(SIMPSH_SOURCES))
 
 DIST_SOURCES = \

@@ -1,14 +1,19 @@
 #include <stdlib.h> // exit
-#include <stdio.h> // printf
+#include <stdio.h> 	// printf
 #include <string.h> // strlen
 
-#include <unistd.h>  // close, dup2, execvp, fork, getopt_long
-
+#include <unistd.h> // close, dup2, execvp, fork, getopt_long
+#include <fcntl.h> 	// open
 #include <signal.h> // sigaction
 #include <getopt.h> // struct option (longopts)
 
-#include "openfile.c"
-#include "executecmd.c"
+//#include "openfile.c"
+//#include "executecmd.c"
+
+// Prototypes
+int openfile(const char *pathname, int flags);
+int executecmd(const char *file, int streams[], char *const argv[]);
+// End prototypes
 
 static int verbose_flag;
 
@@ -83,6 +88,8 @@ int main(int argc, char **argv)
 				// Open file and save its file descriptor
 				logicalfd[fdInd] = openfile(rdpath, O_RDONLY);
 				printf("rdonly logicalfd[%d] is %d\n", fdInd, logicalfd[fdInd]);
+				if (logicalfd[fdInd] < 0)
+					exit(1);
 				
 				// TODO: don't go over max logicalfd size (100) or dynamicaly allocate more space
 				// Temporary: wrap fdInd so you can't go past end of array
@@ -114,6 +121,8 @@ int main(int argc, char **argv)
 				// Open file and save its file descriptor
 				logicalfd[fdInd] = openfile(wrpath, O_WRONLY);
 				printf("wronly logicalfd[%d] is %d\n", fdInd, logicalfd[fdInd]);
+				if (logicalfd[fdInd] < 0)
+					exit(1);
 				
 				// TODO: don't go over max logicalfd size (100) or dynamicaly allocate more space
 				// Temporary: wrap fdInd so you can't go past end of array
@@ -138,14 +147,21 @@ int main(int argc, char **argv)
 				}
 				printf ("\n");
 				
-				// TODO: execute command with options in a child fork
-				// executecmd(...)
+				// TODO: execute command with options
+				int streams[] = {logicalfd[0],logicalfd[1],logicalfd[2]};	// test arguments
+				char *execArgs[] = {"ls", "-l", NULL};  // test arguments
+				
+				if (executecmd(execArgs[0], streams, execArgs) < 0) // Error occurred
+					exit(1);
 				break;
 			case '?':
-				// printf ("unrecognized option\n"); // exit gracefully?
+				printf ("Error: unrecognized option\n");
+				exit(1);
 				break;
 			default:
 				printf ("default case\n");
+				printf ("Error: unrecognized option\n");
+				exit(1);
 			}
 		}
 	}
