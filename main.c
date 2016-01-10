@@ -1,10 +1,14 @@
 #include <stdlib.h> // exit
 #include <stdio.h> // printf
+#include <string.h> // strlen
 
 #include <unistd.h>  // close, dup2, execvp, fork, getopt_long
-#include <fcntl.h> // open
+
 #include <signal.h> // sigaction
 #include <getopt.h> // struct option (longopts)
+
+#include "openfile.c"
+#include "executecmd.c"
 
 static int verbose_flag;
 
@@ -15,7 +19,8 @@ int main(int argc, char **argv)
 	extern int optind;		// Gives the current option out of argc options
 	int tempind;
 	int index;
-	int fdTable[];			// File descriptor table. Key is logical fd. Value is real fd.
+	int logicalfd[100];		// File descriptor table. Key is logical fd. Value is real fd.
+	int fdInd = 0;			// Index for logical fd
 
 	if (argc <= 1) // No arguments
 	{
@@ -67,8 +72,14 @@ int main(int argc, char **argv)
 				}
 				printf ("\n");
 				
+				char *rdpath = (char*) malloc (strlen(optarg)+1);
+				strcpy(rdpath, optarg);
+				
 				// TODO: Do open file operation and create logical file descriptor
-				// openfile(...)
+				logicalfd[fdInd] = openfile(rdpath, O_RDONLY);
+				fdInd++;
+				free ((char*)rdpath);
+				printf("logicalfd[0] is %d\n", logicalfd[0]);
 				break;
 			case 'w':	// wronly
 				printf ("found \"wronly\" with arguments ");
@@ -86,8 +97,12 @@ int main(int argc, char **argv)
 				}
 				printf ("\n");
 				
+				const char *wrpath = (char*) malloc (strlen(optarg+index)+1);
+				
 				// TODO: Do open file operation and create logical file descriptor
-				// openfile(...)
+				logicalfd[fdInd] = openfile(wrpath, O_WRONLY);
+				fdInd++;
+				free ((char*)wrpath);
 				break;
 			case 'c':	// command
 				printf ("found \"command\" with arguments ");
@@ -122,3 +137,15 @@ int main(int argc, char **argv)
 	}
 	exit(0);
 }
+
+// /* Wrapper for open */
+// int openfile(const char *pathname, int flags, mode_t mode)
+// {
+	
+// }
+
+// /* Wrapper for execvp */
+// int executecmd(const char *file, char *const argv[])
+// {
+	
+// }

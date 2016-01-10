@@ -1,7 +1,8 @@
  # CS 111 Lab 1 Makefile
 
 CC = gcc
-CFLAGS = -g -Wall -Wextra -Werror
+#CFLAGS = -g -Wall -Wextra -Werror
+CFLAGS = -g -Wall -Wextra
 DISTDIR = lab1-$(USER)
 
 SIMPSH_SOURCES = \
