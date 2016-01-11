@@ -17,20 +17,23 @@ Makefile functionality:
 * make clean: removes all files from 'make'
 
 Program functionality:
-* Can detect the following options and print them out (as well as their args)
+* Working options
 	--rdonly
 	--wronly
 	--command
+	
+* Non-working options
 	--verbose
 	--brief
-* Can open a file in rdonly
 
-Program TODO:
+Lab 1A TODO:
 * Error handling and exiting correctly
-* Verbose and non-verbose print exit statuses upon exit of program
 * Expanding logicalfd array if user goes over 100 fds
-* Do appropriate things for options and arguments
 * Verify number of arguments for options that require them
 	--rdonly (1)
 	--wronly (1)
 	--command (>= 4)
+* 'make check' test cases
+	
+Lab 1B TODO
+* Print exit statuses and arguments for --wait

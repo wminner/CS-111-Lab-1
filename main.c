@@ -22,7 +22,7 @@ int main(int argc, char **argv)
 	int ret; 				// What getopt_long returns
 	extern char *optarg;	// Gives the option strings
 	extern int optind;		// Gives the current option out of argc options
-	int tempind;
+	int currOptInd;
 	int index;
 	int logicalfd[100];		// File descriptor table. Key is logical fd. Value is real fd.
 	int fdInd = 0;			// Index for logical fd
@@ -51,7 +51,7 @@ int main(int argc, char **argv)
 			int option_index = 0;
 
 			ret = getopt_long(argc, argv, "", long_options, &option_index);
-			tempind = optind;
+			currOptInd = optind;
 			index = 0;
 			
 			if (ret == -1) // No more options found, then break out of while loop
@@ -68,16 +68,15 @@ int main(int argc, char **argv)
 			case 'r':	// rdonly
 				printf ("found \"rdonly\" with arguments ");
 				// Process options while optind <= argc or encounter '--' 
-				while (tempind <= argc)
+				while (currOptInd <= argc)
 				{
-					if (optarg[index] == '-') 
-						if (optarg[index+1] == '-') // Check for '--'
-							break;
+					if (optarg[index] == '-' && optarg[index+1] == '-') // Check for '--'
+						break;
 					printf ("\'%s\' ", optarg+index);
 					while (optarg[index] != '\0')
 						index++;
 					index++;
-					tempind++;
+					currOptInd++;
 				}
 				printf ("\n");
 				
@@ -101,16 +100,15 @@ int main(int argc, char **argv)
 			case 'w':	// wronly
 				printf ("found \"wronly\" with arguments ");
 				// Process options while optind <= argc or encounter '--' 
-				while (tempind <= argc)
+				while (currOptInd <= argc)
 				{
-					if (optarg[index] == '-') 
-						if (optarg[index+1] == '-') // Check for '--'
-							break;
+					if (optarg[index] == '-' && optarg[index+1] == '-') // Check for '--'
+						break;
 					printf ("\'%s\' ", optarg+index);
 					while (optarg[index] != '\0')
 						index++;
 					index++;
-					tempind++;
+					currOptInd++;
 				}
 				printf ("\n");
 				
@@ -132,28 +130,45 @@ int main(int argc, char **argv)
 				free ((char*)wrpath);
 				break;
 			case 'c':	// command
+			{
 				printf ("found \"command\" with arguments ");
+				int streams[3];
+				char *execArgv[sizeof(optarg)/sizeof(optarg[0])];
+				char *delim;	
+				int execArgc = 0;	
+				
 				// Process options while optind <= argc or encounter '--' 
-				while (tempind <= argc)
+				while (currOptInd <= argc)
 				{
-					if (optarg[index] == '-') 
-						if (optarg[index+1] == '-') // Check for '--'
-							break;
+					if (optarg[index] == '-' && optarg[index+1] == '-') // Check for '--'
+						break;
 					printf ("\'%s\' ", optarg+index);
-					while (optarg[index] != '\0')
-						index++;
-					index++;
-					tempind++;
+					if ((currOptInd-optind) < 3) // If in the first 3 arguments (streams)...
+					{
+						streams[currOptInd-optind] = logicalfd[atoi(optarg+index)];
+						//printf ("\"streams[%d] is %d\"\n", currOptInd-optind, streams[currOptInd-optind]);
+					}
+					else  // If in arguments after streams
+					{
+						execArgv[execArgc++] = optarg+index;
+					}
+					
+					delim = strchr(optarg+index, '\0');	// Look for null byte
+					index = delim - optarg + 1;	// Find index into optarg using delim
+					currOptInd++;
 				}
 				printf ("\n");
+				execArgv[execArgc] = NULL;
 				
-				// TODO: execute command with options
-				int streams[] = {logicalfd[0],logicalfd[1],logicalfd[2]};	// test arguments
-				char *execArgs[] = {"ls", "-l", NULL};  // test arguments
+				// Test arguments
+				// int streams[] = {logicalfd[0],logicalfd[1],logicalfd[2]};
+				// char *execArgv[] = {"ls", "-l", NULL};
+				// End test arguments
 				
-				if (executecmd(execArgs[0], streams, execArgs) < 0) // Error occurred
+				if (executecmd(execArgv[0], streams, execArgv) < 0) // Error occurred
 					exit(1);
 				break;
+			}
 			case '?':
 				printf ("Error: unrecognized option\n");
 				exit(1);
