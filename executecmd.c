@@ -3,7 +3,6 @@
 #include <stdio.h> 	  // printf
 #include <errno.h>    // errno
 #include <string.h>   // strerror
-#include <stdio.h>    // printf
 
 int executecmd(const char *file, int streams[], char *const argv[])
 {
@@ -13,7 +12,7 @@ int executecmd(const char *file, int streams[], char *const argv[])
 	// Fork a child to do execvp work
 	if ((pid = fork()) < 0) // Error forking
 	{
-		printf ("Error: %s\n", strerror(errno));
+		fprintf (stderr, "Error: %s\n", strerror(errno));
 		return -1;
 	}
 	else if (pid == 0) // Child
@@ -25,7 +24,7 @@ int executecmd(const char *file, int streams[], char *const argv[])
 		// If return value < 0, error occurred
 		if (execvp(file, argv) < 0)
 		{
-			printf ("Error: %s\n", strerror(errno));
+			fprintf (stderr, "Error: %s\n", strerror(errno));
 			return -1;
 		}
 	}
@@ -34,7 +33,7 @@ int executecmd(const char *file, int streams[], char *const argv[])
 		// Wait for child to return with status?
 		if (waitpid(pid, &status, 0) < 0)  // If error occurred
 		{
-			printf ("Error: %s\n", strerror(errno));
+			fprintf (stderr, "Error: %s\n", strerror(errno));
 			return -1;
 		}
 		else

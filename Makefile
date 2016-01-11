@@ -1,9 +1,9 @@
- # CS 111 Lab 1 Makefile
+# CS 111 Lab 1 Makefile
 
 CC = gcc
 #CFLAGS = -g -Wall -Wextra -Werror
 CFLAGS = -g -Wall -Wextra
-DISTDIR = lab1-$(USER)
+DIR = lab1-$(USER)
 
 SIMPSH_SOURCES = \
   main.c \
@@ -11,19 +11,19 @@ SIMPSH_SOURCES = \
   executecmd.c
 SIMPSH_OBJECTS = $(subst .c,.o,$(SIMPSH_SOURCES))
 
-DIST_SOURCES = \
-  $(SIMPSH_SOURCES) Makefile README
+DIST_SOURCES = $(SIMPSH_SOURCES) Makefile README test.sh
 
 simpsh: $(SIMPSH_OBJECTS)
 	$(CC) $(CFLAGS) -o $@ $(SIMPSH_OBJECTS)
 
-dist: $(DISTDIR).tar.gz
+dist: $(DIR).tar.gz
 
-$(DISTDIR).tar.gz: $(DIST_SOURCES)
-	rm -rf $(DISTDIR)
-	tar -czf $@ $(DIST_SOURCES)
+$(DIR).tar.gz: $(DIST_SOURCES)
+	rm -rf $(DIR)
+	tar -czf $@ --transform='s,^,$(DIR)/,' $(DIST_SOURCES)
 
 check: 
+	./test.sh
 
 clean:
-	rm -rf *~ *.o *.tar.gz simpsh $(DISTDIR)
+	rm -rf *~ *.o *.tar.gz simpsh $(DIR) a b c d

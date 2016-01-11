@@ -7,13 +7,9 @@
 #include <signal.h> // sigaction
 #include <getopt.h> // struct option (longopts)
 
-//#include "openfile.c"
-//#include "executecmd.c"
-
 // Prototypes
 int openfile(const char *pathname, int flags);
 int executecmd(const char *file, int streams[], char *const argv[]);
-// End prototypes
 
 static int verbose_flag;
 
@@ -26,6 +22,7 @@ int main(int argc, char **argv)
 	int index;
 	int logicalfd[100];		// File descriptor table. Key is logical fd. Value is real fd.
 	int fdInd = 0;			// Index for logical fd
+	int success = 1;
 
 	if (argc <= 1) // No arguments
 	{
@@ -61,24 +58,30 @@ int main(int argc, char **argv)
 			{
 			case 0: // Occurs for options that set flags (verbose or brief)
 				if (verbose_flag)
-					printf ("verbose flag set\n");
+					//printf ("verbose flag set\n");
+					continue;	// Do verbose stuff
 				else
-					printf ("brief flag set\n");
+					//printf ("brief flag set\n");
+					continue;	// Do brief stuff
 				break;
 			case 'r':	// rdonly
-				printf ("found \"rdonly\" with arguments ");
+				if (verbose_flag)
+					printf ("--rdonly ");
+				
 				// Process options while optind <= argc or encounter '--' 
 				while (currOptInd <= argc)
 				{
 					if (optarg[index] == '-' && optarg[index+1] == '-') // Check for '--'
 						break;
-					printf ("\'%s\' ", optarg+index);
+					if (verbose_flag)
+						printf ("%s ", optarg+index);
 					while (optarg[index] != '\0')
 						index++;
 					index++;
 					currOptInd++;
 				}
-				printf ("\n");
+				if (verbose_flag)
+					printf ("\n");
 				
 				// Copy argument string into a new allocated string
 				char *rdpath = (char*) malloc (strlen(optarg)+1);
@@ -86,9 +89,8 @@ int main(int argc, char **argv)
 				
 				// Open file and save its file descriptor
 				logicalfd[fdInd] = openfile(rdpath, O_RDONLY);
-				printf("rdonly logicalfd[%d] is %d\n", fdInd, logicalfd[fdInd]);
 				if (logicalfd[fdInd] < 0)
-					exit(1);
+					success = 0;
 				
 				// TODO: don't go over max logicalfd size (100) or dynamicaly allocate more space
 				// Temporary: wrap fdInd so you can't go past end of array
@@ -98,19 +100,23 @@ int main(int argc, char **argv)
 				free ((char*)rdpath);
 				break;
 			case 'w':	// wronly
-				printf ("found \"wronly\" with arguments ");
+				if (verbose_flag)
+					printf ("--wronly ");
+				
 				// Process options while optind <= argc or encounter '--' 
 				while (currOptInd <= argc)
 				{
 					if (optarg[index] == '-' && optarg[index+1] == '-') // Check for '--'
 						break;
-					printf ("\'%s\' ", optarg+index);
+					if (verbose_flag)
+						printf ("%s ", optarg+index);
 					while (optarg[index] != '\0')
 						index++;
 					index++;
 					currOptInd++;
 				}
-				printf ("\n");
+				if (verbose_flag)
+					printf ("\n");
 				
 				// Copy argument string into a new allocated string
 				char *wrpath = (char*) malloc (strlen(optarg)+1);
@@ -118,9 +124,8 @@ int main(int argc, char **argv)
 				
 				// Open file and save its file descriptor
 				logicalfd[fdInd] = openfile(wrpath, O_WRONLY);
-				printf("wronly logicalfd[%d] is %d\n", fdInd, logicalfd[fdInd]);
 				if (logicalfd[fdInd] < 0)
-					exit(1);
+					success = 0;
 				
 				// TODO: don't go over max logicalfd size (100) or dynamicaly allocate more space
 				// Temporary: wrap fdInd so you can't go past end of array
@@ -131,7 +136,9 @@ int main(int argc, char **argv)
 				break;
 			case 'c':	// command
 			{
-				printf ("found \"command\" with arguments ");
+				if (verbose_flag)
+					printf ("--command ");
+				
 				int streams[3];
 				char *execArgv[sizeof(optarg)/sizeof(optarg[0])];
 				char *delim;	
@@ -142,11 +149,11 @@ int main(int argc, char **argv)
 				{
 					if (optarg[index] == '-' && optarg[index+1] == '-') // Check for '--'
 						break;
-					printf ("\'%s\' ", optarg+index);
+					if (verbose_flag)
+						printf ("%s ", optarg+index);
 					if ((currOptInd-optind) < 3) // If in the first 3 arguments (streams)...
 					{
 						streams[currOptInd-optind] = logicalfd[atoi(optarg+index)];
-						//printf ("\"streams[%d] is %d\"\n", currOptInd-optind, streams[currOptInd-optind]);
 					}
 					else  // If in arguments after streams
 					{
@@ -157,7 +164,8 @@ int main(int argc, char **argv)
 					index = delim - optarg + 1;	// Find index into optarg using delim
 					currOptInd++;
 				}
-				printf ("\n");
+				if (verbose_flag)
+					printf ("\n");
 				execArgv[execArgc] = NULL;
 				
 				// Test arguments
@@ -166,31 +174,20 @@ int main(int argc, char **argv)
 				// End test arguments
 				
 				if (executecmd(execArgv[0], streams, execArgv) < 0) // Error occurred
-					exit(1);
+					success = 0;
 				break;
 			}
 			case '?':
-				printf ("Error: unrecognized option\n");
-				exit(1);
+				fprintf (stderr, "Error: unrecognized option\n");
 				break;
 			default:
-				printf ("default case\n");
-				printf ("Error: unrecognized option\n");
-				exit(1);
+				//printf ("default case\n");
+				fprintf (stderr, "Error: unrecognized option\n");
 			}
 		}
 	}
-	exit(0);
+	if (success)
+		exit(0);
+	else
+		exit(1);
 }
-
-// /* Wrapper for open */
-// int openfile(const char *pathname, int flags)
-// {
-	
-// }
-
-// /* Wrapper for execvp */
-// int executecmd(const char *file, char *const argv[])
-// {
-	
-// }
