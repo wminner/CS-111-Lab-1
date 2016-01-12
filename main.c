@@ -19,8 +19,8 @@ int main(int argc, char **argv)
 	int ret; 				// What getopt_long returns
 	extern char *optarg;	// Gives the option strings
 	extern int optind;		// Gives the current option out of argc options
-	int currOptInd;			// Current option index
-	int index;				// Index into optarg
+	int currOptInd = 0;		// Current option index
+	int index = 0;			// Index into optarg
 
 	int maxfd = 100;		// Size of logicalfd table
 	int *logicalfd = (int*) malloc (maxfd*sizeof(int));	// fd table. Key is logical fd. Value is real fd.
@@ -28,8 +28,23 @@ int main(int argc, char **argv)
 	int exit_status = 0;	// Keeps track of how the program should exit
 	int exit_sum = 0;		// Sum of child process exit statuses to use when wait_flag set
 	int args_found = 0;		// Used to verify --option num of arguments requirement
+	int option_index = 0;	// Used with getopt_long
 	
-	if (!logicalfd)			// Make sure logicalfd was allocated correctly
+	static struct option long_options[] =
+		{
+			/* Flag setting options */
+			{"verbose", no_argument, &verbose_flag, 1},
+			{"brief",   no_argument, &verbose_flag, 0},
+			{"wait", 	no_argument, &wait_flag, 1},
+
+			/* Non flag setting options */
+			{"rdonly",  required_argument, 0, 'r'},
+			{"wronly",  required_argument, 0, 'w'},
+			{"command", required_argument, 0, 'c'},
+			{0, 0, 0, 0}
+		};
+	
+	if (!logicalfd)		// Make sure logicalfd was allocated correctly
 	{	
 		fprintf (stderr, "Error: failed to allocate memory\n");
 		exit(1);
@@ -41,29 +56,17 @@ int main(int argc, char **argv)
 	}
 	else if (argc > 1) // At least one argument
 	{
-		// while (1)	// Scan everything looking for --wait
-		// {
-			
-		// }
+		for (int i = 0; i < argc; i++)	// Pre-scan looking for "--wait"
+		{
+			if (strcmp(argv[i], "--wait") == 0)	// Found "--wait"
+			{
+				wait_flag = 1;
+				break;
+			}
+		}
 		
 		while (1) 	// Loop until getop_long doesn't find anything (then break)
 		{
-			static struct option long_options[] =
-			{
-				/* Flag setting options */
-				{"verbose", no_argument, &verbose_flag, 1},
-				{"brief",   no_argument, &verbose_flag, 0},
-				{"wait", 	no_argument, &wait_flag, 1},
-
-				/* Non flag setting options */
-				{"rdonly",  required_argument, 0, 'r'},
-				{"wronly",  required_argument, 0, 'w'},
-				{"command", required_argument, 0, 'c'},
-				{0, 0, 0, 0}
-			};
-
-			int option_index = 0;
-
 			ret = getopt_long(argc, argv, "", long_options, &option_index);
 			currOptInd = optind;
 			index = 0;

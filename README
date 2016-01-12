@@ -8,7 +8,6 @@ Winter 2016
 ***********************
 Lab 1 - Simpleton Shell
 ***********************
-
 Makefile functionality:
 * make: compiles program 'simpsh'
 * make dist: packages files into tarball
@@ -21,7 +20,8 @@ simpsh functionality:
 	--wronly
 	--command
 	--verbose
-	--brief (cancel verbose on rest of the command)	
+	--brief (cancel verbose on rest of commands)	
+	--wait (partially working)
 * Verifies that the appropriate number of arguments are given
 	--rdonly (1)
 	--wronly (1)
@@ -30,8 +30,16 @@ simpsh functionality:
 Lab 1A TODO:
 * N/A
 
+Notes  
+* test.sh runs simpsh with the "--wait" option in order to avoid race conditions, 
+  since there are multiple commands in tests and some depend on others.
+* Option --wait not fully functional, but was added in to get more complex tests
+  working.  It does not output the exit statuses of all the executed commands,
+  but it does wait for child processes to finish. However implementing option
+  --wait was not required for Lab 1A.
+
 Known Issues
 * getopt_long: this likes to discover short options for things like "ls -l",
-  and say they are invalid options, even I gave it an empty optstring.  
-  This causes a problem distinguishing between unknown long options and unknown 
-  (but should be ignored) short options.  However it does not 
+  and say they are invalid options. This causes a problem distinguishing between
+  unknown long options and unknown (but should be ignored) short options.
+

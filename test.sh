@@ -11,7 +11,7 @@ echo "This is file b" > b
 echo "This is file c" > c
 printf "This is file a\nThis is file c\n" > d
 
-./simpsh --wait --rdonly a --wronly b --wronly c --verbose --command 0 1 2 cat a --brief --command 0 1 2 cat c
+./simpsh --rdonly a --wronly b --wronly c --verbose --command 0 1 2 cat a --brief --command 0 1 2 cat c --wait
 
 diff -u b d
 
@@ -28,7 +28,7 @@ echo "This is file b" > b
 echo "This is file c" > c
 sort a | cat - c > d
 
-./simpsh --wait --rdonly a --wronly b --wronly c --command 0 1 2 sort --command 0 1 2 cat c
+./simpsh --rdonly a --wronly b --wronly c --command 0 1 2 sort --command 0 1 2 cat c --wait
 
 diff -u b d
 
@@ -45,7 +45,7 @@ echo "This is file b" > b
 echo "This is file c" > c
 cat a | tr A-Z a-z > d
 
-./simpsh --wait --rdonly a --wronly b --wronly c --command 0 1 2 tr A-Z a-z
+./simpsh --rdonly a --wronly b --wronly c --command 0 1 2 tr A-Z a-z --wait
 
 diff -u b d
 
