@@ -9,20 +9,31 @@
 
 // Prototypes
 int openfile(const char *pathname, int flags);
-int executecmd(const char *file, int streams[], char *const argv[]);
+int executecmd(const char *file, int streams[], char *const argv[], int wait_flag);
 
-static int verbose_flag;
+static int verbose_flag = 0;
+static int wait_flag = 0;		// Flag to wait for child processes or not
 
 int main(int argc, char **argv)
 {
 	int ret; 				// What getopt_long returns
 	extern char *optarg;	// Gives the option strings
 	extern int optind;		// Gives the current option out of argc options
-	int currOptInd;
-	int index;
-	int logicalfd[100];		// File descriptor table. Key is logical fd. Value is real fd.
-	int fdInd = 0;			// Index for logical fd
-	int success = 1;
+	int currOptInd;			// Current option index
+	int index;				// Index into optarg
+
+	int maxfd = 100;		// Size of logicalfd table
+	int *logicalfd = (int*) malloc (maxfd*sizeof(int));	// fd table. Key is logical fd. Value is real fd.
+	int fdInd = 0;			// Index/capacity of fd table
+	int exit_status = 0;	// Keeps track of how the program should exit
+	int exit_sum = 0;		// Sum of child process exit statuses to use when wait_flag set
+	int args_found = 0;		// Used to verify --option num of arguments requirement
+	
+	if (!logicalfd)			// Make sure logicalfd was allocated correctly
+	{	
+		fprintf (stderr, "Error: failed to allocate memory\n");
+		exit(1);
+	}
 
 	if (argc <= 1) // No arguments
 	{
@@ -30,13 +41,19 @@ int main(int argc, char **argv)
 	}
 	else if (argc > 1) // At least one argument
 	{
-		while (1) // Loop until getop_long doesn't find anything (then break)
+		// while (1)	// Scan everything looking for --wait
+		// {
+			
+		// }
+		
+		while (1) 	// Loop until getop_long doesn't find anything (then break)
 		{
 			static struct option long_options[] =
 			{
 				/* Flag setting options */
 				{"verbose", no_argument, &verbose_flag, 1},
 				{"brief",   no_argument, &verbose_flag, 0},
+				{"wait", 	no_argument, &wait_flag, 1},
 
 				/* Non flag setting options */
 				{"rdonly",  required_argument, 0, 'r'},
@@ -73,6 +90,8 @@ int main(int argc, char **argv)
 				{
 					if (optarg[index] == '-' && optarg[index+1] == '-') // Check for '--'
 						break;
+					else	// Else, found another argument
+						args_found++;
 					if (verbose_flag)
 						printf ("%s ", optarg+index);
 					while (optarg[index] != '\0')
@@ -83,21 +102,37 @@ int main(int argc, char **argv)
 				if (verbose_flag)
 					printf ("\n");
 				
+				if (args_found != 1)	// Error if num of args not 1
+				{
+					fprintf (stderr, "Error: \"--rdonly\" accepts one argument.  You supplied %d arguments.\n", args_found);
+					exit_status = -1;
+					goto end_r_case;
+				}
+				
 				// Copy argument string into a new allocated string
 				char *rdpath = (char*) malloc (strlen(optarg)+1);
-				strcpy(rdpath, optarg);
+				if (rdpath)
+					strcpy(rdpath, optarg);
+				else
+				{
+					fprintf(stderr, "Error: failed to allocate memory\n");
+					exit(1);
+				}
 				
 				// Open file and save its file descriptor
+				if (fdInd >= maxfd)	// If not enough space in fd table...
+				{
+					maxfd *= 2;
+					logicalfd = (int*) realloc (logicalfd, maxfd*sizeof(int)); // Double the array size
+				}
 				logicalfd[fdInd] = openfile(rdpath, O_RDONLY);
-				if (logicalfd[fdInd] < 0)
-					success = 0;
+				if (logicalfd[fdInd] < 0)	// If something went wrong with open file operation...
+					exit_status = -1;
+				fdInd++;
+				free (rdpath);	// Free argument string when done
 				
-				// TODO: don't go over max logicalfd size (100) or dynamicaly allocate more space
-				// Temporary: wrap fdInd so you can't go past end of array
-				fdInd = (fdInd+1) % (sizeof(logicalfd)/sizeof(int)); // Will be '% 100'
-				
-				// Free argument string when done
-				free ((char*)rdpath);
+				end_r_case:
+				args_found = 0;		// Reset args found for next option
 				break;
 			case 'w':	// wronly
 				if (verbose_flag)
@@ -108,6 +143,8 @@ int main(int argc, char **argv)
 				{
 					if (optarg[index] == '-' && optarg[index+1] == '-') // Check for '--'
 						break;
+					else	// Else, found another argument
+						args_found++;
 					if (verbose_flag)
 						printf ("%s ", optarg+index);
 					while (optarg[index] != '\0')
@@ -118,47 +155,62 @@ int main(int argc, char **argv)
 				if (verbose_flag)
 					printf ("\n");
 				
+				if (args_found != 1)	// Error if num of args not 1
+				{
+					fprintf (stderr, "Error: \"--wronly\" accepts one argument.  You supplied %d arguments.\n", args_found);
+					exit_status = -1;
+					goto end_w_case;
+				}
+				
 				// Copy argument string into a new allocated string
 				char *wrpath = (char*) malloc (strlen(optarg)+1);
-				strcpy(wrpath, optarg);
+				if (wrpath)
+					strcpy(wrpath, optarg);
+				else
+				{
+					fprintf(stderr, "Error: failed to allocate memory\n");
+					exit(1);
+				}
 				
 				// Open file and save its file descriptor
+				if (fdInd >= maxfd)	// If not enough space in fd table...
+				{
+					maxfd *= 2;
+					logicalfd = (int*) realloc (logicalfd, maxfd*sizeof(int)); // Double the array size
+				}
 				logicalfd[fdInd] = openfile(wrpath, O_WRONLY);
-				if (logicalfd[fdInd] < 0)
-					success = 0;
+				if (logicalfd[fdInd] < 0)	// If something went wrong with open file operation...
+					exit_status = -1;
 				
-				// TODO: don't go over max logicalfd size (100) or dynamicaly allocate more space
-				// Temporary: wrap fdInd so you can't go past end of array
-				fdInd = (fdInd+1) % (sizeof(logicalfd)/sizeof(int)); // Will be '% 100'
+				fdInd++;
+				free (wrpath);	// Free argument string when done
 				
-				// Free argument string when done
-				free ((char*)wrpath);
+				end_w_case:
+				args_found = 0;		// Reset args found for next option
 				break;
 			case 'c':	// command
 			{
 				if (verbose_flag)
 					printf ("--command ");
 				
-				int streams[3];
-				char *execArgv[sizeof(optarg)/sizeof(optarg[0])];
-				char *delim;	
-				int execArgc = 0;	
+				int streams[3];		// Holds three fd streams to use with dup2
+				char *execArgv[argc - optind + 1];	// Size is conservatively set to number of arguments remaining to be parsed
+				char *delim;		// Points to null byte at end of each option/arg
+				int execArgc = 0;	// Number of args to use with --command
 				
 				// Process options while optind <= argc or encounter '--' 
 				while (currOptInd <= argc)
 				{
 					if (optarg[index] == '-' && optarg[index+1] == '-') // Check for '--'
 						break;
+					else	// Else, found another argument
+						args_found++;
 					if (verbose_flag)
 						printf ("%s ", optarg+index);
 					if ((currOptInd-optind) < 3) // If in the first 3 arguments (streams)...
-					{
 						streams[currOptInd-optind] = logicalfd[atoi(optarg+index)];
-					}
 					else  // If in arguments after streams
-					{
 						execArgv[execArgc++] = optarg+index;
-					}
 					
 					delim = strchr(optarg+index, '\0');	// Look for null byte
 					index = delim - optarg + 1;	// Find index into optarg using delim
@@ -166,15 +218,28 @@ int main(int argc, char **argv)
 				}
 				if (verbose_flag)
 					printf ("\n");
-				execArgv[execArgc] = NULL;
+				execArgv[execArgc] = NULL;	// execvp requires NULL at end of arg string array
+				
+				if (args_found < 4)	// Error if num of args less than 4
+				{
+					fprintf (stderr, "Error: \"--command\" requires at least four arguments.  You supplied %d arguments.\n", args_found);
+					exit_status = -1;
+					goto end_c_case;
+				}
 				
 				// Test arguments
 				// int streams[] = {logicalfd[0],logicalfd[1],logicalfd[2]};
 				// char *execArgv[] = {"ls", "-l", NULL};
 				// End test arguments
 				
-				if (executecmd(execArgv[0], streams, execArgv) < 0) // Error occurred
-					success = 0;
+				int exec_ret = executecmd(execArgv[0], streams, execArgv, wait_flag);
+				if (exec_ret < 0) 	// Error occurred with executecmd
+					exit_status = -1;
+				else				// Sum process's exit status
+					exit_sum += exec_ret;
+				
+				end_c_case:
+				args_found = 0;
 				break;
 			}
 			case '?':
@@ -186,8 +251,10 @@ int main(int argc, char **argv)
 			}
 		}
 	}
-	if (success)
-		exit(0);
+	free (logicalfd);
+	
+	if (wait_flag)
+		exit(exit_sum);
 	else
-		exit(1);
+		exit(exit_status);
 }

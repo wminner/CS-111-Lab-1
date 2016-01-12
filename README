@@ -22,13 +22,13 @@ simpsh functionality:
 	--command
 	--verbose
 	--brief (cancel verbose on rest of the command)	
-
-Lab 1A TODO:
-* Expanding logicalfd array if user goes over 100 fds
-* Verify number of arguments for options that require them
+* Verifies that the appropriate number of arguments are given
 	--rdonly (1)
 	--wronly (1)
 	--command (>= 4)
+	
+Lab 1A TODO:
+* N/A
 
 Known Issues
 * getopt_long: this likes to discover short options for things like "ls -l",
