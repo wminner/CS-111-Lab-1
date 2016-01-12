@@ -1,6 +1,6 @@
 #!/bin/bash
-# If diffs come up clean, then tests have passed
-# There will be some output from 'make clean', 'make', and '--verbose'
+# If diffs come up clean, then tests have passed, and this will be outputed on
+# screen. There will be some output from 'make clean', 'make', and '--verbose'.
 
 make clean
 make
@@ -22,13 +22,13 @@ else
     echo "Test 1/3 failed"
 fi
 
-# Test 2 - sort
-printf "4\n3\n2\n1\n" > a
+# Test 2 - sort (and single dash options)
+printf "4\n 3\n2\n1\n" > a
 echo "This is file b" > b
 echo "This is file c" > c
-sort a | cat - c > d
+sort a -b -r | cat - c > d
 
-./simpsh --rdonly a --wronly b --wronly c --command 0 1 2 sort --command 0 1 2 cat c --wait
+./simpsh --rdonly a --wronly b --wronly c --command 0 1 2 sort -b -r --command 0 1 2 cat c --wait
 
 diff -u b d
 
@@ -55,4 +55,3 @@ then
 else
     echo "Test 3/3 failed"
 fi
-

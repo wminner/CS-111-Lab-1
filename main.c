@@ -200,6 +200,7 @@ int main(int argc, char **argv)
 				char *execArgv[argc - optind + 1];	// Size is conservatively set to number of arguments remaining to be parsed
 				char *delim;		// Points to null byte at end of each option/arg
 				int execArgc = 0;	// Number of args to use with --command
+				int optstart = optind;	// Copy optind as it may change
 				
 				// Process options while optind <= argc or encounter '--' 
 				while (currOptInd <= argc)
@@ -207,11 +208,14 @@ int main(int argc, char **argv)
 					if (optarg[index] == '-' && optarg[index+1] == '-') // Check for '--'
 						break;
 					else	// Else, found another argument
+					{
+						optind++;
 						args_found++;
+					}
 					if (verbose_flag)
 						printf ("%s ", optarg+index);
-					if ((currOptInd-optind) < 3) // If in the first 3 arguments (streams)...
-						streams[currOptInd-optind] = logicalfd[atoi(optarg+index)];
+					if ((currOptInd-optstart) < 3) // If in the first 3 arguments (streams)...
+						streams[currOptInd-optstart] = logicalfd[atoi(optarg+index)];
 					else  // If in arguments after streams
 						execArgv[execArgc++] = optarg+index;
 					
@@ -219,6 +223,8 @@ int main(int argc, char **argv)
 					index = delim - optarg + 1;	// Find index into optarg using delim
 					currOptInd++;
 				}
+				optind--;	// Needed or optind off by one otherwise
+				
 				if (verbose_flag)
 					printf ("\n");
 				execArgv[execArgc] = NULL;	// execvp requires NULL at end of arg string array
