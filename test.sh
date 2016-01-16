@@ -5,6 +5,8 @@
 make clean
 make
 
+TESTNUM=5
+
 # Test 1 - cat and verbose/brief
 echo "This is file a" > a
 echo "This is file b" > b
@@ -17,9 +19,9 @@ diff -u b d
 
 if [ $? -eq 0 ]
 then
-   echo "Test 1/3 passed"
+   echo "Test 1/$TESTNUM passed"
 else
-    echo "Test 1/3 failed"
+    echo "Test 1/$TESTNUM failed"
 fi
 
 # Test 2 - sort (and single dash options)
@@ -34,9 +36,9 @@ diff -u b d
 
 if [ $? -eq 0 ]
 then
-    echo "Test 2/3 passed"
+    echo "Test 2/$TESTNUM passed"
 else
-    echo "Test 2/3 failed"
+    echo "Test 2/$TESTNUM failed"
 fi
 
 # Test 3 - tr
@@ -51,7 +53,41 @@ diff -u b d
 
 if [ $? -eq 0 ]
 then
-    echo "Test 3/3 passed"
+    echo "Test 3/$TESTNUM passed"
 else
-    echo "Test 3/3 failed"
+    echo "Test 3/$TESTNUM failed"
+fi
+
+# Test 4 - oflags
+echo "This is file a" > a
+echo "This is file c" > c
+rm b
+cat a | cat - a > d
+
+./simpsh --rdonly a --creat --append --wronly b --wronly c --command 0 1 2 cat a --command 0 1 2 cat a --wait
+
+diff -u b d
+
+if [ $? -eq 0 ]
+then
+    echo "Test 4/$TESTNUM passed"
+else
+    echo "Test 4/$TESTNUM failed"
+fi
+
+# Test 5 - rdwr
+echo "This is file a" > a
+echo "This is file b" > b
+
+cat a | cat - a > d
+
+./simpsh --append --rdwr a --rdwr b --wronly c --command 0 1 2 cat a --command 0 0 2 cat b --wait
+
+diff -u a d
+
+if [ $? -eq 0 ]
+then
+    echo "Test 5/$TESTNUM passed"
+else
+    echo "Test 5/$TESTNUM failed"
 fi

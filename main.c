@@ -238,7 +238,65 @@ int main(int argc, char **argv)
 					args_found = 0;		// Reset args found for next option
 					break;
 				case 'b': 	// read and write (both)
-					// Do read write stuff
+					if (verbose_flag)
+						printf ("--rdwr ");
+					
+					// Process options while optind <= argc or encounter '--' 
+					while (currOptInd <= argc)
+					{
+						if (optarg[index] == '-' && optarg[index+1] == '-') // Check for '--'
+							break;
+						else	// Else, found another argument
+							args_found++;
+						if (verbose_flag)
+							printf ("%s ", optarg+index);
+						while (optarg[index] != '\0')
+							index++;
+						index++;
+						currOptInd++;
+					}
+					if (verbose_flag)
+						printf ("\n");
+					
+					if (args_found != 1)	// Error if num of args not 1
+					{
+						fprintf (stderr, "Error: \"--rdwr\" accepts one argument.  You supplied %d arguments.\n", args_found);
+						exit_status = -1;
+						goto end_rw_case;
+					}
+					
+					// Copy argument string into a new allocated string
+					char *rdwrpath = (char*) malloc (strlen(optarg)+1);
+					if (rdwrpath)
+						strcpy(rdwrpath, optarg);
+					else
+					{
+						fprintf(stderr, "Error: failed to allocate memory\n");
+						exit(1);
+					}
+					
+					// Open file and save its file descriptor
+					if (fdInd >= maxfd)	// If not enough space in fd table...
+					{
+						maxfd *= 2;
+						logicalfd = (int*) realloc (logicalfd, maxfd*sizeof(int)); // Double the array size
+					}
+					
+					// Figure out flags
+					flags = findflags(O_RDWR);
+					
+					logicalfd[fdInd] = openfile(rdwrpath, flags);	// Open file with appropriate flags
+					if (logicalfd[fdInd] < 0)	// If something went wrong with open file operation...
+						exit_status = -1;
+					else if (creat_flag)
+						fchmod(logicalfd[fdInd], 0644);		// Change permissions of created file
+					clearflags();	// Clear oflag
+					
+					fdInd++;
+					free (rdwrpath);	// Free argument string when done
+					
+					end_rw_case:
+					args_found = 0;		// Reset args found for next option
 					break;
 				case 'c':	// command
 				{
@@ -302,10 +360,11 @@ int main(int argc, char **argv)
 				}
 				case '?':
 					fprintf (stderr, "Error: unrecognized option\n");
+					exit_status = -1;
 					break;
 				default:
-					//printf ("default case\n");
 					fprintf (stderr, "Error: unrecognized option\n");
+					exit_status = -1;
 			}
 		}
 	}
