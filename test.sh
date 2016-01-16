@@ -13,7 +13,7 @@ echo "This is file b" > b
 echo "This is file c" > c
 printf "This is file a\nThis is file c\n" > d
 
-./simpsh --rdonly a --wronly b --wronly c --verbose --command 0 1 2 cat a --brief --command 0 1 2 cat c --wait
+./simpsh --rdonly a --wronly b --wronly c --verbose --command 0 1 2 cat a --brief --command 0 1 2 cat c --test --wait
 
 diff -u b d
 
@@ -30,7 +30,7 @@ echo "This is file b" > b
 echo "This is file c" > c
 sort a -b -r | cat - c > d
 
-./simpsh --rdonly a --wronly b --wronly c --command 0 1 2 sort -b -r --command 0 1 2 cat c --wait
+./simpsh --rdonly a --wronly b --wronly c --command 0 1 2 sort -b -r --command 0 1 2 cat c --test --wait
 
 diff -u b d
 
@@ -47,7 +47,7 @@ echo "This is file b" > b
 echo "This is file c" > c
 cat a | tr A-Z a-z > d
 
-./simpsh --rdonly a --wronly b --wronly c --command 0 1 2 tr A-Z a-z --wait
+./simpsh --rdonly a --wronly b --wronly c --command 0 1 2 tr A-Z a-z --test --wait
 
 diff -u b d
 
@@ -64,7 +64,7 @@ echo "This is file c" > c
 rm b
 cat a | cat - a > d
 
-./simpsh --rdonly a --creat --append --wronly b --wronly c --command 0 1 2 cat a --command 0 1 2 cat a --wait
+./simpsh --rdonly a --creat --append --wronly b --wronly c --command 0 1 2 cat a --command 0 1 2 cat a --test --wait
 
 diff -u b d
 
@@ -81,7 +81,7 @@ echo "This is file b" > b
 
 cat a | cat - a > d
 
-./simpsh --append --rdwr a --rdwr b --wronly c --command 0 1 2 cat a --command 0 0 2 cat b --wait
+./simpsh --append --rdwr a --rdwr b --wronly c --command 0 1 2 cat a --command 0 0 2 cat b --test --wait
 
 diff -u a d
 

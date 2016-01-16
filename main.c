@@ -11,11 +11,12 @@
 // Prototypes
 int openfile(const char *pathname, int flags);
 int executecmd(const char *file, int streams[], char *const argv[], int wait_flag);
-int findflags(int open_flag);
-void clearflags();
+int findoflags(int open_flag);
+void clearoflags();
 
 static int verbose_flag = 0;
 static int wait_flag = 0;		// Flag to wait for child processes or not
+static int test_flag = 0;		// Activates test mode, serializing all commands for verification testing
 
 // Oflags
 static int append_flag = 0;
@@ -52,7 +53,8 @@ int main(int argc, char **argv)
 			/* Flag setting options */
 			{"verbose",   no_argument, &verbose_flag,   1},
 			{"brief",     no_argument, &verbose_flag,   0},
-			{"wait", 	  no_argument, &wait_flag,      1},
+			{"wait", 	  no_argument, &wait_flag,      0},	// Pre-scan turns wait on. Turn off after you pass it.
+			{"test",      no_argument, &test_flag,      1},
 			
 			/* Oflags go to -1 so we can AND them with actual oflags */
 			{"append",    no_argument, &append_flag,    -1},
@@ -87,6 +89,15 @@ int main(int argc, char **argv)
 	}
 	else if (argc > 1) // At least one argument
 	{
+		for (int i = 0; i < argc; i++)	// Pre-scan looking for "--test"
+		{
+			if (strcmp(argv[i], "--test") == 0)	// Found "--test"
+			{
+				test_flag = 1;
+				break;
+			}
+		}
+		
 		for (int i = 0; i < argc; i++)	// Pre-scan looking for "--wait"
 		{
 			if (strcmp(argv[i], "--wait") == 0)	// Found "--wait"
@@ -161,14 +172,14 @@ int main(int argc, char **argv)
 					}
 					
 					// Figure out flags
-					flags = findflags(O_RDONLY);
+					flags = findoflags(O_RDONLY);
 					
 					logicalfd[fdInd] = openfile(rdpath, flags);	// Open file with appropriate flags					
 					if (logicalfd[fdInd] < 0)	// If something went wrong with open file operation...
 						exit_status = -1;
 					else if (creat_flag)
 						fchmod(logicalfd[fdInd], 0644);		// Change permissions of created file
-					clearflags();	// Clear oflag
+					clearoflags();	// Clear oflag
 						
 					fdInd++;
 					free (rdpath);	// Free argument string when done
@@ -222,14 +233,14 @@ int main(int argc, char **argv)
 					}
 					
 					// Figure out flags
-					flags = findflags(O_WRONLY);
+					flags = findoflags(O_WRONLY);
 					
 					logicalfd[fdInd] = openfile(wrpath, flags);	// Open file with appropriate flags
 					if (logicalfd[fdInd] < 0)	// If something went wrong with open file operation...
 						exit_status = -1;
 					else if (creat_flag)
 						fchmod(logicalfd[fdInd], 0644);		// Change permissions of created file
-					clearflags();	// Clear oflag
+					clearoflags();	// Clear oflag
 					
 					fdInd++;
 					free (wrpath);	// Free argument string when done
@@ -283,14 +294,14 @@ int main(int argc, char **argv)
 					}
 					
 					// Figure out flags
-					flags = findflags(O_RDWR);
+					flags = findoflags(O_RDWR);
 					
 					logicalfd[fdInd] = openfile(rdwrpath, flags);	// Open file with appropriate flags
 					if (logicalfd[fdInd] < 0)	// If something went wrong with open file operation...
 						exit_status = -1;
 					else if (creat_flag)
 						fchmod(logicalfd[fdInd], 0644);		// Change permissions of created file
-					clearflags();	// Clear oflag
+					clearoflags();	// Clear oflag
 					
 					fdInd++;
 					free (rdwrpath);	// Free argument string when done
@@ -348,7 +359,7 @@ int main(int argc, char **argv)
 					// char *execArgv[] = {"ls", "-l", NULL};
 					// End test arguments
 					
-					int exec_ret = executecmd(execArgv[0], streams, execArgv, wait_flag);
+					int exec_ret = executecmd(execArgv[0], streams, execArgv, wait_flag || test_flag);
 					if (exec_ret < 0) 	// Error occurred with executecmd
 						exit_status = -1;
 					else				// Sum process's exit status
@@ -376,7 +387,7 @@ int main(int argc, char **argv)
 		exit(exit_status);
 }
 
-int findflags(int open_flag)
+int findoflags(int open_flag)
 {
 	int total = (append_flag & O_APPEND)     | (cloexec_flag & O_CLOEXEC)     |
 				(creat_flag & O_CREAT)       | (directory_flag & O_DIRECTORY) |
@@ -388,7 +399,7 @@ int findflags(int open_flag)
 	return total;
 }
 
-void clearflags()
+void clearoflags()
 {
 	append_flag = 0;
 	cloexec_flag = 0;
