@@ -28,8 +28,16 @@ simpsh functionality:
 	--command (>= 4)
 * Can accept short arguments for commands (ex: "ls -l")
 	
-Lab 1A TODO:
+Lab 1a TODO:
 * N/A
+
+Lab 1b TODO:
+* Disable opterr?
+* --wait order should be considered
+* --wait output exit statuses
+* Signals
+* Pipes
+* File flags
 
 Notes  
 * test.sh runs simpsh with the "--wait" option in order to avoid race conditions, 
