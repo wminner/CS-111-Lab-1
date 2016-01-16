@@ -4,15 +4,20 @@
 
 #include <unistd.h> // close, dup2, execvp, fork, getopt_long
 #include <fcntl.h> 	// open
+#include <sys/stat.h> // fchmod
 #include <signal.h> // sigaction
 #include <getopt.h> // struct option (longopts)
 
 // Prototypes
 int openfile(const char *pathname, int flags);
 int executecmd(const char *file, int streams[], char *const argv[], int wait_flag);
+int findflags(int open_flag);
+void clearflags();
 
 static int verbose_flag = 0;
 static int wait_flag = 0;		// Flag to wait for child processes or not
+
+// Oflags
 static int append_flag = 0;
 static int cloexec_flag = 0;
 static int creat_flag = 0;
@@ -32,6 +37,7 @@ int main(int argc, char **argv)
 	extern int optind;		// Gives the current option out of argc options
 	int currOptInd = 0;		// Current option index
 	int index = 0;			// Index into optarg
+	int flags;
 
 	int maxfd = 100;		// Size of logicalfd table
 	int *logicalfd = (int*) malloc (maxfd*sizeof(int));	// fd table. Key is logical fd. Value is real fd.
@@ -47,22 +53,24 @@ int main(int argc, char **argv)
 			{"verbose",   no_argument, &verbose_flag,   1},
 			{"brief",     no_argument, &verbose_flag,   0},
 			{"wait", 	  no_argument, &wait_flag,      1},
-			{"append",    no_argument, &append_flag,    1},
-			{"cloexec",   no_argument, &cloexec_flag,   1},
-			{"creat",     no_argument, &creat_flag,     1},
-			{"directory", no_argument, &directory_flag, 1},
-			{"dsync",     no_argument, &dsync_flag,     1},
-			{"excl",      no_argument, &excl_flag,      1},
-			{"nofollow",  no_argument, &nofollow_flag,  1},
-			{"nonblock",  no_argument, &nonblock_flag,  1},
-			{"rsync",     no_argument, &rsync_flag,     1},
-			{"sync",      no_argument, &sync_flag,      1},
-			{"trunc",     no_argument, &trunc_flag,     1},
+			
+			/* Oflags go to -1 so we can AND them with actual oflags */
+			{"append",    no_argument, &append_flag,    -1},
+			{"cloexec",   no_argument, &cloexec_flag,   -1},
+			{"creat",     no_argument, &creat_flag,     -1},
+			{"directory", no_argument, &directory_flag, -1},
+			{"dsync",     no_argument, &dsync_flag,     -1},
+			{"excl",      no_argument, &excl_flag,      -1},
+			{"nofollow",  no_argument, &nofollow_flag,  -1},
+			{"nonblock",  no_argument, &nonblock_flag,  -1},
+			{"rsync",     no_argument, &rsync_flag,     -1},
+			{"sync",      no_argument, &sync_flag,      -1},
+			{"trunc",     no_argument, &trunc_flag,     -1},
 
 			/* Non flag setting options */
 			{"rdonly",  required_argument, 0, 'r'},
 			{"wronly",  required_argument, 0, 'w'},
-			{"rdwr",    required_argument, 0, 'rw'},
+			{"rdwr",    required_argument, 0, 'b'},
 			{"command", required_argument, 0, 'c'},
 			{0, 0, 0, 0}
 		};
@@ -151,9 +159,17 @@ int main(int argc, char **argv)
 						maxfd *= 2;
 						logicalfd = (int*) realloc (logicalfd, maxfd*sizeof(int)); // Double the array size
 					}
-					logicalfd[fdInd] = openfile(rdpath, O_RDONLY);
+					
+					// Figure out flags
+					flags = findflags(O_RDONLY);
+					
+					logicalfd[fdInd] = openfile(rdpath, flags);	// Open file with appropriate flags					
 					if (logicalfd[fdInd] < 0)	// If something went wrong with open file operation...
 						exit_status = -1;
+					else if (creat_flag)
+						fchmod(logicalfd[fdInd], 0644);		// Change permissions of created file
+					clearflags();	// Clear oflag
+						
 					fdInd++;
 					free (rdpath);	// Free argument string when done
 					
@@ -204,9 +220,16 @@ int main(int argc, char **argv)
 						maxfd *= 2;
 						logicalfd = (int*) realloc (logicalfd, maxfd*sizeof(int)); // Double the array size
 					}
-					logicalfd[fdInd] = openfile(wrpath, O_WRONLY);
+					
+					// Figure out flags
+					flags = findflags(O_WRONLY);
+					
+					logicalfd[fdInd] = openfile(wrpath, flags);	// Open file with appropriate flags
 					if (logicalfd[fdInd] < 0)	// If something went wrong with open file operation...
 						exit_status = -1;
+					else if (creat_flag)
+						fchmod(logicalfd[fdInd], 0644);		// Change permissions of created file
+					clearflags();	// Clear oflag
 					
 					fdInd++;
 					free (wrpath);	// Free argument string when done
@@ -214,7 +237,7 @@ int main(int argc, char **argv)
 					end_w_case:
 					args_found = 0;		// Reset args found for next option
 					break;
-				case 'rw': 	// read and write
+				case 'b': 	// read and write (both)
 					// Do read write stuff
 					break;
 				case 'c':	// command
@@ -292,4 +315,31 @@ int main(int argc, char **argv)
 		exit(exit_sum);
 	else
 		exit(exit_status);
+}
+
+int findflags(int open_flag)
+{
+	int total = (append_flag & O_APPEND)     | (cloexec_flag & O_CLOEXEC)     |
+				(creat_flag & O_CREAT)       | (directory_flag & O_DIRECTORY) |
+				(dsync_flag & O_DSYNC)       | (excl_flag & O_EXCL)           |
+				(nofollow_flag & O_NOFOLLOW) | (nonblock_flag & O_NONBLOCK)   |
+				(rsync_flag & O_RSYNC)       | (sync_flag & O_SYNC)           |
+				(trunc_flag & O_TRUNC)       | (open_flag);
+	
+	return total;
+}
+
+void clearflags()
+{
+	append_flag = 0;
+	cloexec_flag = 0;
+	creat_flag = 0;
+	directory_flag = 0;
+	dsync_flag = 0;
+	excl_flag = 0;
+	nofollow_flag = 0;
+	nonblock_flag = 0;
+	rsync_flag = 0;
+	sync_flag = 0;
+	trunc_flag = 0;
 }
