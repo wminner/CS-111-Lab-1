@@ -39,6 +39,7 @@ int main(int argc, char **argv)
 	int currOptInd = 0;		// Current option index
 	int index = 0;			// Index into optarg
 	int flags;
+	int ever_waited = 0;
 
 	int maxfd = 100;		// Size of logicalfd table
 	int *logicalfd = (int*) malloc (maxfd*sizeof(int));	// fd table. Key is logical fd. Value is real fd.
@@ -103,6 +104,7 @@ int main(int argc, char **argv)
 			if (strcmp(argv[i], "--wait") == 0)	// Found "--wait"
 			{
 				wait_flag = 1;
+				ever_waited = 1;
 				break;
 			}
 		}
@@ -359,7 +361,8 @@ int main(int argc, char **argv)
 					// char *execArgv[] = {"ls", "-l", NULL};
 					// End test arguments
 					
-					int exec_ret = executecmd(execArgv[0], streams, execArgv, wait_flag || test_flag);
+					// Encode test_flag at binary position 2.  Executecmd prints will be supressed.
+					int exec_ret = executecmd(execArgv[0], streams, execArgv, wait_flag | (test_flag << 1));
 					if (exec_ret < 0) 	// Error occurred with executecmd
 						exit_status = -1;
 					else				// Sum process's exit status
@@ -381,7 +384,7 @@ int main(int argc, char **argv)
 	}
 	free (logicalfd);
 	
-	if (wait_flag)
+	if (ever_waited || test_flag)
 		exit(exit_sum);
 	else
 		exit(exit_status);

@@ -5,15 +5,15 @@
 make clean
 make
 
-TESTNUM=5
+TESTNUM=6
 
-# Test 1 - cat and verbose/brief
+# Test 1 - cat
 echo "This is file a" > a
 echo "This is file b" > b
 echo "This is file c" > c
 printf "This is file a\nThis is file c\n" > d
 
-./simpsh --rdonly a --wronly b --wronly c --verbose --command 0 1 2 cat a --brief --command 0 1 2 cat c --test --wait
+./simpsh --rdonly a --wronly b --wronly c --command 0 1 2 cat a --command 0 1 2 cat c --test
 
 diff -u b d
 
@@ -30,7 +30,7 @@ echo "This is file b" > b
 echo "This is file c" > c
 sort a -b -r | cat - c > d
 
-./simpsh --rdonly a --wronly b --wronly c --command 0 1 2 sort -b -r --command 0 1 2 cat c --test --wait
+./simpsh --rdonly a --wronly b --wronly c --command 0 1 2 sort -b -r --command 0 1 2 cat c --test
 
 diff -u b d
 
@@ -47,7 +47,7 @@ echo "This is file b" > b
 echo "This is file c" > c
 cat a | tr A-Z a-z > d
 
-./simpsh --rdonly a --wronly b --wronly c --command 0 1 2 tr A-Z a-z --test --wait
+./simpsh --rdonly a --wronly b --wronly c --command 0 1 2 tr A-Z a-z --test
 
 diff -u b d
 
@@ -64,7 +64,7 @@ echo "This is file c" > c
 rm b
 cat a | cat - a > d
 
-./simpsh --rdonly a --creat --append --wronly b --wronly c --command 0 1 2 cat a --command 0 1 2 cat a --test --wait
+./simpsh --rdonly a --creat --append --wronly b --wronly c --command 0 1 2 cat a --command 0 1 2 cat a --test
 
 diff -u b d
 
@@ -81,7 +81,7 @@ echo "This is file b" > b
 
 cat a | cat - a > d
 
-./simpsh --append --rdwr a --rdwr b --wronly c --command 0 1 2 cat a --command 0 0 2 cat b --test --wait
+./simpsh --append --rdwr a --rdwr b --wronly c --command 0 1 2 cat a --command 0 0 2 cat b --test
 
 diff -u a d
 
@@ -90,4 +90,20 @@ then
     echo "Test 5/$TESTNUM passed"
 else
     echo "Test 5/$TESTNUM failed"
+fi
+
+# Test 6 - stderror and exit status
+printf "cat: e: No such file or directory\ntr: range-endpoints of \'A--\' are in reverse collating sequence order\n" > d
+
+./simpsh --rdonly a --wronly b --rdwr c --command 0 1 2 cat e - --command 0 1 2 tr A--Z a-z --test
+
+RET=$?
+
+diff -u c d
+
+if [ $RET -eq 2 -a $? -eq 0 ]
+then
+    echo "Test 6/$TESTNUM passed"
+else
+    echo "Test 6/$TESTNUM failed"
 fi
