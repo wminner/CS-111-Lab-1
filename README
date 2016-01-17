@@ -28,6 +28,7 @@ simpsh functionality:
 	--pause
 	--abort
 	--catch
+	--ignore
 	--default
 * All oflags options supported
 	--append
@@ -53,10 +54,8 @@ Lab 1a TODO:
 
 
 Lab 1b TODO:
-* Ignore Signal
 * Pipes
 * Do tests on tarball during 'make dist'
-* Christie add student ID number to readme
 * Tests for signal options
 
 

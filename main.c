@@ -1,3 +1,5 @@
+#define _GNU_SOURCE	// REG_RIP
+
 #include <stdlib.h> // exit
 #include <stdio.h> 	// printf
 #include <string.h> // strlen
@@ -7,8 +9,6 @@
 #include <signal.h> // sigaction
 #include <getopt.h> // struct option (longopts)
 
-#define max_sig 31	// Maximum of 31 different signals (for linux)
-
 // Prototypes defined in other c files
 int openfile(const char *pathname, int flags);	// openfile.c
 int executecmd(const char *file, int streams[], char *const argv[], int wait_flag);	// executecmd.c
@@ -16,15 +16,13 @@ int executecmd(const char *file, int streams[], char *const argv[], int wait_fla
 // Prototypes defined in main.c
 int findoflags(int open_flag);
 void clearoflags();
-void handle_signal(int sig, siginfo_t *siginfo, void *context);
+void catch_signal(int sig);
+void ignore_signal(int sig, siginfo_t *siginfo, void *context);
 
 // General Option Flags
 static int verbose_flag = 0;
 static int wait_flag = 0;		// Flag to wait for child processes or not
 static int test_flag = 0;		// Activates test mode, serializing all commands for verification testing
-
-// Reassigned sighandler flag: 0 means default, 1 means sighandler reassigned
-static int sig_reassign_flag[max_sig];	// Static array should be initialized all to zero
 
 // File Oflags
 static int append_flag = 0;
@@ -60,12 +58,10 @@ int main(int argc, char **argv)
 	extern int opterr;		// Declared in getopt_long
 	opterr = 0;				// Turns off automatic error message from getopt_long
 	
-	// Set up signal handler
-	int sig;								// Stores signal number
-	struct sigaction new_act;				// Stores our new sig handler
-	struct sigaction old_act[max_sig];		// Save default sig handlers when reassigning
-	new_act.sa_sigaction = &handle_signal;	// Assign handler
-	new_act.sa_flags = SA_SIGINFO;			// Use sa_sigaction instead of sa_handler
+	// Set up sa signal handler (only needed for ignore)
+	struct sigaction ignore;				// New sig handler
+	ignore.sa_sigaction = &ignore_signal;	// Assign handler
+	ignore.sa_flags = SA_SIGINFO;			// Use sa_sigaction instead of sa_handler
 	
 	static struct option long_options[] =
 		{
@@ -96,7 +92,7 @@ int main(int argc, char **argv)
 			{"pause",   no_argument,       0, 'p'},
 			{"abort",   no_argument,       0, 'a'},
 			{"catch",   required_argument, 0, 's'},
-			//{"ignore",  required_argument, 0, 'i'},
+			{"ignore",  required_argument, 0, 'i'},
 			{"default", required_argument, 0, 'd'},
 			{0, 0, 0, 0}
 		};
@@ -363,7 +359,7 @@ int main(int argc, char **argv)
 				case 'a':	// abort
 				{
 					int *null_ptr = NULL;
-					if (*null_ptr)	// Segmentation fault
+					if (*null_ptr)		// Cause segmentation fault
 						continue;
 					break;
 				}
@@ -395,21 +391,48 @@ int main(int argc, char **argv)
 						args_found = 0;
 						break;
 					}
-					
-					sig = atoi(optarg);		// Convert sig string to int
-					
-					// Reassign signal handler
-					if (sigaction(sig, &new_act, &old_act[sig-1]) < 0)
-					{
-						fprintf (stderr, "Error: sigaction failed\n");
-						exit_status = 1;
-					}
-					else
-						sig_reassign_flag[sig-1] = 1;	// Sig handler reassigned (no longer default)
+						
+					signal(atoi(optarg), &catch_signal);	// Catch signal
 					
 					args_found = 0;		// Reset args found for next option
 					break;
 				case 'i':	// ignore (signal)
+					if (verbose_flag)
+						printf ("--ignore ");
+					
+					// Process options while optind <= argc or encounter '--' 
+					while (currOptInd <= argc)
+					{
+						if (optarg[index] == '-' && optarg[index+1] == '-') // Check for '--'
+							break;
+						else	// Else, found another argument
+							args_found++;
+						if (verbose_flag)
+							printf ("%s ", optarg+index);
+						while (optarg[index] != '\0')
+							index++;
+						index++;
+						currOptInd++;
+					}
+					if (verbose_flag)
+						printf ("\n");
+					
+					if (args_found != 1)	// Error if num of args not 1
+					{
+						fprintf (stderr, "Error: \"--ignore\" requires one argument.  You supplied %d arguments.\n", args_found);
+						exit_status = 1;
+						args_found = 0;
+						break;
+					}
+										
+					// Reassign signal handler to ignore handler
+					if (sigaction(atoi(optarg), &ignore, NULL) < 0)
+					{
+						fprintf (stderr, "Error: sigaction failed\n");
+						exit_status = 1;
+					}
+					
+					args_found = 0;		// Reset args found for next option
 					break;
 				case 'd':	// default (signal)
 					if (verbose_flag)
@@ -440,28 +463,16 @@ int main(int argc, char **argv)
 						break;
 					}
 					
-					sig = atoi(optarg);		// Convert sig string to int
-					
-					// Reassign signal handler
-					if (sig_reassign_flag[sig-1] == 1)	// If sighandler was reassigned...
-					{
-						if (sigaction(sig, &old_act[sig-1], NULL) < 0)	// Put back default handler
-						{
-							fprintf (stderr, "Error: sigaction failed\n");
-							exit_status = 1;
-						}
-						else
-							sig_reassign_flag[sig-1] = 0;	// Sig handler now at default
-					}
+					signal(atoi(optarg), SIG_DFL);	// Set to default signal handler
 					
 					args_found = 0;		// Reset args found for next option
 					break;
 				case '?':
-					fprintf (stderr, "Error: unrecognized option\n");
+					fprintf (stderr, "Error: unrecognized option \"%s\"\n", argv[optind]);
 					exit_status = 1;
 					break;
 				default:
-					fprintf (stderr, "Error: unrecognized option\n");
+					fprintf (stderr, "Error: unrecognized option \"%s\"\n", argv[optind]);
 					exit_status = 1;
 			}
 		}
@@ -501,12 +512,16 @@ void clearoflags()
 	trunc_flag = 0;
 }
 
-void handle_signal(int sig, siginfo_t *siginfo, void *context)
+void catch_signal(int sig)
 {
 	fprintf (stderr, "%d caught\n", sig);
-	if (siginfo)	// Temporary to make compiler not complain about unused vars
-	{;}
-	if (context)	// Temporary to make compiler not complain about unused vars
-	{;}
 	exit(sig);
+}
+
+void ignore_signal(int sig, siginfo_t *siginfo, void *context)
+{
+	//fprintf (stderr, "%d ignored\n", sig);
+	if (sig && siginfo)
+	{;}		// temp to avoid warning of unused parameter from compiler
+	((ucontext_t*)context)->uc_mcontext.gregs[REG_RIP]++;	// Increment insn pointer to skip bad insn
 }
