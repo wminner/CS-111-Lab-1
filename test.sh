@@ -101,7 +101,7 @@ RET=$?
 
 diff -u c d
 
-if [ $RET -eq 2 -a $? -eq 0 ]
+if [ $RET -eq 1 -a $? -eq 0 ]
 then
     echo "Test 6/$TESTNUM passed"
 else

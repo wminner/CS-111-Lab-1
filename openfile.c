@@ -5,7 +5,7 @@
 
 int openfile(const char *pathname, int flags)
 {
-	int fd = open(pathname, flags);
+	int fd = open(pathname, flags, 0644);
 	if (fd < 0)
 		fprintf(stderr, "Error with \"%s\": %s\n", pathname, strerror(errno));
 	return fd;

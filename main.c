@@ -45,7 +45,7 @@ int main(int argc, char **argv)
 	int *logicalfd = (int*) malloc (maxfd*sizeof(int));	// fd table. Key is logical fd. Value is real fd.
 	int fdInd = 0;			// Index/capacity of fd table
 	int exit_status = 0;	// Keeps track of how the program should exit
-	int exit_sum = 0;		// Sum of child process exit statuses to use when wait_flag set
+	int exit_max = 0;		// Sum of child process exit statuses to use when wait_flag set
 	int args_found = 0;		// Used to verify --option num of arguments requirement
 	int option_index = 0;	// Used with getopt_long
 	
@@ -124,12 +124,6 @@ int main(int argc, char **argv)
 			switch (ret)
 			{
 				case 0: // Occurs for options that set flags (verbose or brief)
-					if (verbose_flag)
-						//printf ("verbose flag set\n");
-						continue;	// Do verbose stuff
-					else
-						//printf ("brief flag set\n");
-						continue;	// Do brief stuff
 					break;
 				case 'r':	// rdonly
 					if (verbose_flag)
@@ -156,19 +150,10 @@ int main(int argc, char **argv)
 					{
 						fprintf (stderr, "Error: \"--rdonly\" accepts one argument.  You supplied %d arguments.\n", args_found);
 						exit_status = 1;
-						goto end_r_case;
+						args_found = 0;
+						break;
 					}
-					
-					// Copy argument string into a new allocated string
-					char *rdpath = (char*) malloc (strlen(optarg)+1);
-					if (rdpath)
-						strcpy(rdpath, optarg);
-					else
-					{
-						fprintf(stderr, "Error: failed to allocate memory\n");
-						exit(1);
-					}
-					
+										
 					// Open file and save its file descriptor
 					if (fdInd >= maxfd)	// If not enough space in fd table...
 					{
@@ -179,17 +164,13 @@ int main(int argc, char **argv)
 					// Figure out flags
 					flags = findoflags(O_RDONLY);
 					
-					logicalfd[fdInd] = openfile(rdpath, flags);	// Open file with appropriate flags					
+					logicalfd[fdInd] = openfile(optarg, flags);	// Open file with appropriate flags					
 					if (logicalfd[fdInd] < 0)	// If something went wrong with open file operation...
 						exit_status = 1;
-					else if (creat_flag)
-						fchmod(logicalfd[fdInd], 0644);		// Change permissions of created file
 					clearoflags();	// Clear oflag
 						
 					fdInd++;
-					free (rdpath);	// Free argument string when done
 					
-					end_r_case:
 					args_found = 0;		// Reset args found for next option
 					break;
 				case 'w':	// wronly
@@ -217,17 +198,8 @@ int main(int argc, char **argv)
 					{
 						fprintf (stderr, "Error: \"--wronly\" accepts one argument.  You supplied %d arguments.\n", args_found);
 						exit_status = 1;
-						goto end_w_case;
-					}
-					
-					// Copy argument string into a new allocated string
-					char *wrpath = (char*) malloc (strlen(optarg)+1);
-					if (wrpath)
-						strcpy(wrpath, optarg);
-					else
-					{
-						fprintf(stderr, "Error: failed to allocate memory\n");
-						exit(1);
+						args_found = 0;
+						break;
 					}
 					
 					// Open file and save its file descriptor
@@ -240,17 +212,13 @@ int main(int argc, char **argv)
 					// Figure out flags
 					flags = findoflags(O_WRONLY);
 					
-					logicalfd[fdInd] = openfile(wrpath, flags);	// Open file with appropriate flags
+					logicalfd[fdInd] = openfile(optarg, flags);	// Open file with appropriate flags
 					if (logicalfd[fdInd] < 0)	// If something went wrong with open file operation...
 						exit_status = 1;
-					else if (creat_flag)
-						fchmod(logicalfd[fdInd], 0644);		// Change permissions of created file
 					clearoflags();	// Clear oflag
 					
 					fdInd++;
-					free (wrpath);	// Free argument string when done
 					
-					end_w_case:
 					args_found = 0;		// Reset args found for next option
 					break;
 				case 'b': 	// read and write (both)
@@ -278,19 +246,10 @@ int main(int argc, char **argv)
 					{
 						fprintf (stderr, "Error: \"--rdwr\" accepts one argument.  You supplied %d arguments.\n", args_found);
 						exit_status = 1;
-						goto end_rw_case;
+						args_found = 0;
+						break;
 					}
-					
-					// Copy argument string into a new allocated string
-					char *rdwrpath = (char*) malloc (strlen(optarg)+1);
-					if (rdwrpath)
-						strcpy(rdwrpath, optarg);
-					else
-					{
-						fprintf(stderr, "Error: failed to allocate memory\n");
-						exit(1);
-					}
-					
+										
 					// Open file and save its file descriptor
 					if (fdInd >= maxfd)	// If not enough space in fd table...
 					{
@@ -301,17 +260,13 @@ int main(int argc, char **argv)
 					// Figure out flags
 					flags = findoflags(O_RDWR);
 					
-					logicalfd[fdInd] = openfile(rdwrpath, flags);	// Open file with appropriate flags
+					logicalfd[fdInd] = openfile(optarg, flags);	// Open file with appropriate flags
 					if (logicalfd[fdInd] < 0)	// If something went wrong with open file operation...
 						exit_status = 1;
-					else if (creat_flag)
-						fchmod(logicalfd[fdInd], 0644);		// Change permissions of created file
 					clearoflags();	// Clear oflag
 					
 					fdInd++;
-					free (rdwrpath);	// Free argument string when done
 					
-					end_rw_case:
 					args_found = 0;		// Reset args found for next option
 					break;
 				case 'c':	// command
@@ -356,22 +311,18 @@ int main(int argc, char **argv)
 					{
 						fprintf (stderr, "Error: \"--command\" requires at least four arguments.  You supplied %d arguments.\n", args_found);
 						exit_status = 1;
-						goto end_c_case;
+						args_found = 0;
+						break;
 					}
-					
-					// Test arguments
-					// int streams[] = {logicalfd[0],logicalfd[1],logicalfd[2]};
-					// char *execArgv[] = {"ls", "-l", NULL};
-					// End test arguments
-					
+										
 					// Encode test_flag at binary position 2.  Executecmd prints will be supressed.
 					int exec_ret = executecmd(execArgv[0], streams, execArgv, wait_flag | (test_flag << 1));
 					if (exec_ret < 0) 	// Error occurred with executecmd
 						exit_status = 1;
 					else				// Sum process's exit status
-						exit_sum += exec_ret;
+						if (exec_ret > exit_max)
+							exit_max = exec_ret;
 					
-					end_c_case:
 					args_found = 0;
 					break;
 				}
@@ -388,7 +339,7 @@ int main(int argc, char **argv)
 	free (logicalfd);
 	
 	if (ever_waited || test_flag)
-		exit(exit_sum);
+		exit(exit_max);
 	else
 		exit(exit_status);
 }
