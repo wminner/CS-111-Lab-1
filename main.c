@@ -125,6 +125,17 @@ int main(int argc, char **argv)
 			switch (ret)
 			{
 				case 0: // Occurs for options that set flags (verbose or brief)
+					if (verbose_flag)
+					{
+						const char *option_name = long_options[option_index].name;
+						// If not option is not --verbose or --test, then print it out
+						if (strcmp(option_name, "verbose") != 0 && strcmp(option_name, "test") != 0)
+						{
+							printf ("--%s ", long_options[option_index].name);
+							if (currOptInd == argc)	// If last argument, add a newline
+								printf ("\n");
+						}
+					}
 					break;
 				case 'r':	// rdonly
 					if (verbose_flag)
