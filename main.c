@@ -78,6 +78,7 @@ int main(int argc, char **argv)
 			{"wronly",  required_argument, 0, 'w'},
 			{"rdwr",    required_argument, 0, 'b'},
 			{"command", required_argument, 0, 'c'},
+			{"pause",   no_argument,       0, 'p'},
 			{0, 0, 0, 0}
 		};
 	
@@ -326,6 +327,9 @@ int main(int argc, char **argv)
 					args_found = 0;
 					break;
 				}
+				case 'p':	// pause
+					pause();	// Wait for a signal to arrive
+					break;
 				case '?':
 					fprintf (stderr, "Error: unrecognized option\n");
 					exit_status = 1;

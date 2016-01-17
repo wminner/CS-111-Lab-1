@@ -23,8 +23,9 @@ simpsh functionality:
 	--command
 	--verbose
 	--brief (cancel verbose on rest of commands)	
-	--wait (partially working)
+	--wait
 	--test (used to serialize all commands for verification testing)
+	--pause
 * All oflags options supported
 	--append
 	--cloexec
