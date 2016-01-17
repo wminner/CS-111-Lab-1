@@ -49,6 +49,9 @@ int main(int argc, char **argv)
 	int args_found = 0;		// Used to verify --option num of arguments requirement
 	int option_index = 0;	// Used with getopt_long
 	
+	extern int opterr;		// Declared in getopt_long
+	opterr = 0;				// Turns off automatic error message from getopt_long
+	
 	static struct option long_options[] =
 		{
 			/* Flag setting options */
@@ -152,7 +155,7 @@ int main(int argc, char **argv)
 					if (args_found != 1)	// Error if num of args not 1
 					{
 						fprintf (stderr, "Error: \"--rdonly\" accepts one argument.  You supplied %d arguments.\n", args_found);
-						exit_status = -1;
+						exit_status = 1;
 						goto end_r_case;
 					}
 					
@@ -178,7 +181,7 @@ int main(int argc, char **argv)
 					
 					logicalfd[fdInd] = openfile(rdpath, flags);	// Open file with appropriate flags					
 					if (logicalfd[fdInd] < 0)	// If something went wrong with open file operation...
-						exit_status = -1;
+						exit_status = 1;
 					else if (creat_flag)
 						fchmod(logicalfd[fdInd], 0644);		// Change permissions of created file
 					clearoflags();	// Clear oflag
@@ -213,7 +216,7 @@ int main(int argc, char **argv)
 					if (args_found != 1)	// Error if num of args not 1
 					{
 						fprintf (stderr, "Error: \"--wronly\" accepts one argument.  You supplied %d arguments.\n", args_found);
-						exit_status = -1;
+						exit_status = 1;
 						goto end_w_case;
 					}
 					
@@ -239,7 +242,7 @@ int main(int argc, char **argv)
 					
 					logicalfd[fdInd] = openfile(wrpath, flags);	// Open file with appropriate flags
 					if (logicalfd[fdInd] < 0)	// If something went wrong with open file operation...
-						exit_status = -1;
+						exit_status = 1;
 					else if (creat_flag)
 						fchmod(logicalfd[fdInd], 0644);		// Change permissions of created file
 					clearoflags();	// Clear oflag
@@ -274,7 +277,7 @@ int main(int argc, char **argv)
 					if (args_found != 1)	// Error if num of args not 1
 					{
 						fprintf (stderr, "Error: \"--rdwr\" accepts one argument.  You supplied %d arguments.\n", args_found);
-						exit_status = -1;
+						exit_status = 1;
 						goto end_rw_case;
 					}
 					
@@ -300,7 +303,7 @@ int main(int argc, char **argv)
 					
 					logicalfd[fdInd] = openfile(rdwrpath, flags);	// Open file with appropriate flags
 					if (logicalfd[fdInd] < 0)	// If something went wrong with open file operation...
-						exit_status = -1;
+						exit_status = 1;
 					else if (creat_flag)
 						fchmod(logicalfd[fdInd], 0644);		// Change permissions of created file
 					clearoflags();	// Clear oflag
@@ -352,7 +355,7 @@ int main(int argc, char **argv)
 					if (args_found < 4)	// Error if num of args less than 4
 					{
 						fprintf (stderr, "Error: \"--command\" requires at least four arguments.  You supplied %d arguments.\n", args_found);
-						exit_status = -1;
+						exit_status = 1;
 						goto end_c_case;
 					}
 					
@@ -364,7 +367,7 @@ int main(int argc, char **argv)
 					// Encode test_flag at binary position 2.  Executecmd prints will be supressed.
 					int exec_ret = executecmd(execArgv[0], streams, execArgv, wait_flag | (test_flag << 1));
 					if (exec_ret < 0) 	// Error occurred with executecmd
-						exit_status = -1;
+						exit_status = 1;
 					else				// Sum process's exit status
 						exit_sum += exec_ret;
 					
@@ -374,11 +377,11 @@ int main(int argc, char **argv)
 				}
 				case '?':
 					fprintf (stderr, "Error: unrecognized option\n");
-					exit_status = -1;
+					exit_status = 1;
 					break;
 				default:
 					fprintf (stderr, "Error: unrecognized option\n");
-					exit_status = -1;
+					exit_status = 1;
 			}
 		}
 	}

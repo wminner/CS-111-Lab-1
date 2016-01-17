@@ -49,9 +49,6 @@ Lab 1a TODO:
 
 
 Lab 1b TODO:
-* Disable opterr?
-* --wait order should be considered
-* --wait output exit statuses
 * Signals
 * Pipes
 * Verbose working for oflags?
