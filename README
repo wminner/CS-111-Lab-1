@@ -1,5 +1,5 @@
-Wesley Minner
-703549234
+Wesley Minner and Christie Mathews 
+703549234		  #########
 
 CS 111 Operating Systems Principles
 Professor Eggert
@@ -26,6 +26,9 @@ simpsh functionality:
 	--wait
 	--test (used to serialize all commands for verification testing)
 	--pause
+	--abort
+	--catch
+	--default
 * All oflags options supported
 	--append
 	--cloexec
@@ -50,8 +53,11 @@ Lab 1a TODO:
 
 
 Lab 1b TODO:
-* Signals
+* Ignore Signal
 * Pipes
+* Do tests on tarball during 'make dist'
+* Christie add student ID number to readme
+* Tests for signal options
 
 
 Notes  

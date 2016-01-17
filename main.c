@@ -4,21 +4,29 @@
 
 #include <unistd.h> // close, dup2, execvp, fork, getopt_long
 #include <fcntl.h> 	// open
-#include <sys/stat.h> // fchmod
 #include <signal.h> // sigaction
 #include <getopt.h> // struct option (longopts)
 
-// Prototypes
-int openfile(const char *pathname, int flags);
-int executecmd(const char *file, int streams[], char *const argv[], int wait_flag);
+#define max_sig 31	// Maximum of 31 different signals (for linux)
+
+// Prototypes defined in other c files
+int openfile(const char *pathname, int flags);	// openfile.c
+int executecmd(const char *file, int streams[], char *const argv[], int wait_flag);	// executecmd.c
+
+// Prototypes defined in main.c
 int findoflags(int open_flag);
 void clearoflags();
+void handle_signal(int sig, siginfo_t *siginfo, void *context);
 
+// General Option Flags
 static int verbose_flag = 0;
 static int wait_flag = 0;		// Flag to wait for child processes or not
 static int test_flag = 0;		// Activates test mode, serializing all commands for verification testing
 
-// Oflags
+// Reassigned sighandler flag: 0 means default, 1 means sighandler reassigned
+static int sig_reassign_flag[max_sig];	// Static array should be initialized all to zero
+
+// File Oflags
 static int append_flag = 0;
 static int cloexec_flag = 0;
 static int creat_flag = 0;
@@ -38,8 +46,8 @@ int main(int argc, char **argv)
 	extern int optind;		// Gives the current option out of argc options
 	int currOptInd = 0;		// Current option index
 	int index = 0;			// Index into optarg
-	int flags;
-	int ever_waited = 0;
+	int flags;				// Flags to open file with
+	int ever_waited = 0;	// Tracks if simpsh ever waited for a process
 
 	int maxfd = 100;		// Size of logicalfd table
 	int *logicalfd = (int*) malloc (maxfd*sizeof(int));	// fd table. Key is logical fd. Value is real fd.
@@ -51,6 +59,13 @@ int main(int argc, char **argv)
 	
 	extern int opterr;		// Declared in getopt_long
 	opterr = 0;				// Turns off automatic error message from getopt_long
+	
+	// Set up signal handler
+	int sig;								// Stores signal number
+	struct sigaction new_act;				// Stores our new sig handler
+	struct sigaction old_act[max_sig];		// Save default sig handlers when reassigning
+	new_act.sa_sigaction = &handle_signal;	// Assign handler
+	new_act.sa_flags = SA_SIGINFO;			// Use sa_sigaction instead of sa_handler
 	
 	static struct option long_options[] =
 		{
@@ -79,6 +94,10 @@ int main(int argc, char **argv)
 			{"rdwr",    required_argument, 0, 'b'},
 			{"command", required_argument, 0, 'c'},
 			{"pause",   no_argument,       0, 'p'},
+			{"abort",   no_argument,       0, 'a'},
+			{"catch",   required_argument, 0, 's'},
+			//{"ignore",  required_argument, 0, 'i'},
+			{"default", required_argument, 0, 'd'},
 			{0, 0, 0, 0}
 		};
 	
@@ -124,7 +143,7 @@ int main(int argc, char **argv)
 				
 			switch (ret)
 			{
-				case 0: // Occurs for options that set flags (verbose or brief)
+				case 0: // Occurs for options that set flags
 					if (verbose_flag)
 					{
 						const char *option_name = long_options[option_index].name;
@@ -160,7 +179,7 @@ int main(int argc, char **argv)
 					
 					if (args_found != 1)	// Error if num of args not 1
 					{
-						fprintf (stderr, "Error: \"--rdonly\" accepts one argument.  You supplied %d arguments.\n", args_found);
+						fprintf (stderr, "Error: \"--rdonly\" requires one argument.  You supplied %d arguments.\n", args_found);
 						exit_status = 1;
 						args_found = 0;
 						break;
@@ -208,7 +227,7 @@ int main(int argc, char **argv)
 					
 					if (args_found != 1)	// Error if num of args not 1
 					{
-						fprintf (stderr, "Error: \"--wronly\" accepts one argument.  You supplied %d arguments.\n", args_found);
+						fprintf (stderr, "Error: \"--wronly\" requires one argument.  You supplied %d arguments.\n", args_found);
 						exit_status = 1;
 						args_found = 0;
 						break;
@@ -256,7 +275,7 @@ int main(int argc, char **argv)
 					
 					if (args_found != 1)	// Error if num of args not 1
 					{
-						fprintf (stderr, "Error: \"--rdwr\" accepts one argument.  You supplied %d arguments.\n", args_found);
+						fprintf (stderr, "Error: \"--rdwr\" requires one argument.  You supplied %d arguments.\n", args_found);
 						exit_status = 1;
 						args_found = 0;
 						break;
@@ -341,6 +360,102 @@ int main(int argc, char **argv)
 				case 'p':	// pause
 					pause();	// Wait for a signal to arrive
 					break;
+				case 'a':	// abort
+				{
+					int *null_ptr = NULL;
+					if (*null_ptr)	// Segmentation fault
+						continue;
+					break;
+				}
+				case 's':	// catch (signal)
+					if (verbose_flag)
+						printf ("--catch ");
+					
+					// Process options while optind <= argc or encounter '--' 
+					while (currOptInd <= argc)
+					{
+						if (optarg[index] == '-' && optarg[index+1] == '-') // Check for '--'
+							break;
+						else	// Else, found another argument
+							args_found++;
+						if (verbose_flag)
+							printf ("%s ", optarg+index);
+						while (optarg[index] != '\0')
+							index++;
+						index++;
+						currOptInd++;
+					}
+					if (verbose_flag)
+						printf ("\n");
+					
+					if (args_found != 1)	// Error if num of args not 1
+					{
+						fprintf (stderr, "Error: \"--catch\" requires one argument.  You supplied %d arguments.\n", args_found);
+						exit_status = 1;
+						args_found = 0;
+						break;
+					}
+					
+					sig = atoi(optarg);		// Convert sig string to int
+					
+					// Reassign signal handler
+					if (sigaction(sig, &new_act, &old_act[sig-1]) < 0)
+					{
+						fprintf (stderr, "Error: sigaction failed\n");
+						exit_status = 1;
+					}
+					else
+						sig_reassign_flag[sig-1] = 1;	// Sig handler reassigned (no longer default)
+					
+					args_found = 0;		// Reset args found for next option
+					break;
+				case 'i':	// ignore (signal)
+					break;
+				case 'd':	// default (signal)
+					if (verbose_flag)
+						printf ("--default ");
+					
+					// Process options while optind <= argc or encounter '--' 
+					while (currOptInd <= argc)
+					{
+						if (optarg[index] == '-' && optarg[index+1] == '-') // Check for '--'
+							break;
+						else	// Else, found another argument
+							args_found++;
+						if (verbose_flag)
+							printf ("%s ", optarg+index);
+						while (optarg[index] != '\0')
+							index++;
+						index++;
+						currOptInd++;
+					}
+					if (verbose_flag)
+						printf ("\n");
+					
+					if (args_found != 1)	// Error if num of args not 1
+					{
+						fprintf (stderr, "Error: \"--default\" requires one argument.  You supplied %d arguments.\n", args_found);
+						exit_status = 1;
+						args_found = 0;
+						break;
+					}
+					
+					sig = atoi(optarg);		// Convert sig string to int
+					
+					// Reassign signal handler
+					if (sig_reassign_flag[sig-1] == 1)	// If sighandler was reassigned...
+					{
+						if (sigaction(sig, &old_act[sig-1], NULL) < 0)	// Put back default handler
+						{
+							fprintf (stderr, "Error: sigaction failed\n");
+							exit_status = 1;
+						}
+						else
+							sig_reassign_flag[sig-1] = 0;	// Sig handler now at default
+					}
+					
+					args_found = 0;		// Reset args found for next option
+					break;
 				case '?':
 					fprintf (stderr, "Error: unrecognized option\n");
 					exit_status = 1;
@@ -384,4 +499,14 @@ void clearoflags()
 	rsync_flag = 0;
 	sync_flag = 0;
 	trunc_flag = 0;
+}
+
+void handle_signal(int sig, siginfo_t *siginfo, void *context)
+{
+	fprintf (stderr, "%d caught\n", sig);
+	if (siginfo)	// Temporary to make compiler not complain about unused vars
+	{;}
+	if (context)	// Temporary to make compiler not complain about unused vars
+	{;}
+	exit(sig);
 }
