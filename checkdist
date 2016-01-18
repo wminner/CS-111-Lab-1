@@ -1,0 +1,38 @@
+#! /bin/sh
+# CS 111 Lab 1 Check Distribution
+
+(tar -xvf $1.tar.gz.tmp)> /dev/null || exit
+cd $1 || exit
+
+BEFORE=$(ls -l) || exit
+(make clean)> /dev/null || exit
+AFTER=$(ls -l) || exit
+
+if [ "$BEFORE" != "$AFTER" ]
+then
+    echo "DISTRIBUTION IS NOT CLEAN?"
+    echo "***BEFORE CLEAN***"
+    echo $BEFORE
+    echo "***AFTER CLEAN***"
+    echo $AFTER
+    exit 1
+else
+    echo "DISTRIBUTION IS CLEAN!"
+fi
+
+(make check)> /dev/null 2>/dev/null || exit
+
+(make clean)> /dev/null || exit
+
+AFTER=$(ls -l) || exit
+if [ "$BEFORE" != "$AFTER" ]
+then
+    echo "'make clean' IS NOT WORKING CORRECTLY?"
+    echo "***BEFORE CLEAN***"
+    echo $BEFORE
+    echo "***AFTER CLEAN***"
+    echo $AFTER
+    exit 1
+else
+    echo "'make clean' IS WORKING CORRECTLY!"
+fi

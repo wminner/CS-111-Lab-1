@@ -10,7 +10,7 @@ Lab 1 - Simpleton Shell
 ***********************
 Makefile functionality:
 * make: compiles program 'simpsh'
-* make dist: packages files into tarball
+* make dist: packages files into tarball and does some checks
 * make check: performs some simple tests on simpsh
 * make clean: removes all files created from 'make' and 'test.sh'
 
@@ -55,7 +55,6 @@ Lab 1a TODO:
 
 Lab 1b TODO:
 * Pipes
-* Do tests on tarball during 'make dist'
 
 
 Notes  

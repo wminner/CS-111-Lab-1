@@ -20,9 +20,11 @@ dist: $(DIR).tar.gz
 
 $(DIR).tar.gz: $(DIST_SOURCES)
 	rm -rf $(DIR)
-	tar -czf $@ --transform='s,^,$(DIR)/,' $(DIST_SOURCES)
+	tar -czf $@.tmp --transform='s,^,$(DIR)/,' $(DIST_SOURCES)
+	./checkdist $(DIR)
+	mv $@.tmp $@
 
-check: 
+check: test.sh
 	./test.sh
 
 clean:
