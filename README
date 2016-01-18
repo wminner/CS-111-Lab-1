@@ -28,8 +28,8 @@ simpsh functionality:
 	--pause
 	--abort
 	--catch
-	--ignore
 	--default
+	--ignore
 * All oflags options supported
 	--append
 	--cloexec
@@ -56,7 +56,6 @@ Lab 1a TODO:
 Lab 1b TODO:
 * Pipes
 * Do tests on tarball during 'make dist'
-* Tests for signal options
 
 
 Notes  
