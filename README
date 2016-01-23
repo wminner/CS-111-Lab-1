@@ -55,6 +55,9 @@ Lab 1a TODO:
 
 Lab 1b TODO:
 * Pipes
+* Make sure FD still being incremented if open file fails, so FD number is as expected
+* Only increment %rip if internal SIGSEGV (if --pause, then assume external)
+* Use WIFEXITED(status) to check if child exited normally
 
 
 Notes  
