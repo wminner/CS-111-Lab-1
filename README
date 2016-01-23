@@ -1,5 +1,5 @@
-Wesley Minner and Christie Mathews 
-703549234		  104404412
+Wesley Minner & Christie Mathews 
+  703549234       104404412
 
 CS 111 Operating Systems Principles
 Professor Eggert
@@ -20,6 +20,8 @@ simpsh functionality:
 	--rdonly
 	--wronly
 	--rdwr
+	--pipe
+	--close
 	--command
 	--verbose
 	--brief (cancel verbose on rest of commands)	
@@ -54,8 +56,8 @@ Lab 1a TODO:
 
 
 Lab 1b TODO:
-* Pipes
-
+* Test --pipe for harder cases
+* Confirm --close has no weird edge cases/More error handling?
 
 Notes  
 * test.sh runs simpsh with the "--test" option in order to avoid race conditions, 
@@ -63,7 +65,6 @@ Notes
 * Option --test waits for each individual command to finish before starting a 
   new command (effectively serializing commands).  This is necessary for 
   verification testing only.
-
   
 Known Issues
 * None known
