@@ -7,8 +7,8 @@ DIR = lab1-$(USER)
 
 SIMPSH_SOURCES = \
   main.c \
-  openfile.c \
-  executecmd.c
+  openfile.c
+
 SIMPSH_OBJECTS = $(subst .c,.o,$(SIMPSH_SOURCES))
 
 DIST_SOURCES = $(SIMPSH_SOURCES) Makefile README test.sh
@@ -28,4 +28,4 @@ check: test.sh
 	./test.sh
 
 clean:
-	rm -rf *~ *.o *.tar.gz simpsh $(DIR) a b c d
+	rm -rf *~ *.o *.tar.gz simpsh $(DIR) a b c d tempa tempb tempc testb
