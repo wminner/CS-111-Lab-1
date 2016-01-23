@@ -5,7 +5,7 @@
 make clean
 make
 
-TESTNUM=10
+TESTNUM=11
 PASSNUM=0
 
 # Test 1 - cat
@@ -177,6 +177,26 @@ then
 else
     echo "Test 10/$TESTNUM failed!?"
 fi
+
+# Test 11 - Pipe
+echo "ABCDEFGHIJK" > tempa
+touch tempb
+touch tempc
+touch testb
+
+cat tempa | tr A-Z a-z > testb
+
+./simpsh --rdonly tempa --wronly tempb --pipe --wronly tempc --command 0 3 4 cat tempa --command 2 1 4 tr A-Z a-z
+
+diff -u tempb testb
+
+if [ $? -eq 0 ]
+then
+    echo "Test 11/$TESTNUM passed"
+    PASSNUM=$((PASSNUM+1))
+else
+    echo "Test 11/$TESTNUM failed!?"
+    fi
 
 if [ $PASSNUM -eq $TESTNUM ]
 then
