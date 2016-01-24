@@ -33,9 +33,9 @@ printf "4\n 3\n2\n1\n" > a
 echo "This is file b" > b
 echo "This is file c" > c
 sort a -b -r | cat - c > d
-printf "0 sort -b -r \n0 cat c \n" > f
+printf "0 sort -b -r \n0 cat - c \n" > f
 
-(./simpsh --rdonly a --wronly b --wronly c --command 0 1 2 sort -b -r --command 0 1 2 cat c --wait)> e
+(./simpsh --rdonly a --wronly b --wronly c --pipe --command 0 4 2 sort -b -r --command 3 1 2 cat - c --close 4 --wait)> e
 
 diff -u b d
 DIFF1=$?
@@ -167,8 +167,8 @@ fi
 echo "This is file c" > c
 printf "-" > d
 printf "-" >> d
-printf "creat --rdonly a \n--trunc --wronly b \n--wronly c \n--command 0 1 2 cat a \n" >> d
-(./simpsh --verbose --creat --rdonly a --trunc --wronly b --wronly c --command 0 1 2 cat a --brief --command 0 1 2 cat c --test)> c
+printf "creat --rdonly a \n--trunc --wronly b \n--wronly c \n--command 0 1 2 cat a \n--pipe\n--catch 11 \n--default 11 \n--ignore 11 \n--close 4 \n" >> d
+(./simpsh --verbose --creat --rdonly a --trunc --wronly b --wronly c --command 0 1 2 cat a --pipe --catch 11 --default 11 --ignore 11 --close 4 --brief --command 0 1 2 cat c --test)> c
 
 diff -u c d
 

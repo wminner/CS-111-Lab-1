@@ -1,7 +1,7 @@
 #define _GNU_SOURCE	// REG_RIP
 #include <stdlib.h> // exit
 #include <stdio.h> 	// printf
-#include <string.h> // strlen
+#include <string.h> // strlen, strerror
 
 #include <unistd.h> // close, dup2, execvp, fork, getopt_long
 #include <fcntl.h> 	// open
@@ -18,7 +18,7 @@ int findoflags(int open_flag);
 void clearoflags();
 void catch_signal(int sig);
 void ignore_signal(int sig, siginfo_t *siginfo, void *context);
-int executecmd(const char *file, int streams[], char *const argv[], int wait_flag, int i, int o);
+int executecmd(const char *file, int streams[], char *const argv[]);
 
 // General Option Flags
 static int verbose_flag = 0;
@@ -40,15 +40,14 @@ static int sync_flag = 0;
 static int trunc_flag = 0;
 
 // File Descriptor Tables
-static int maxfd = 20;        // Size of logicalfd table
+static int maxfd = 20;		// Capacity of logicalfd table
+static int fdInd = 0;       // Index of fd table
 static int *logicalfd;
-static int *filetype;  
-static int fdInd = 0;          // Index/capacity of fd table
 
 // Struct for process arguments
-static int maxChild = 10;
-static int childInd = 0;
-struct child_proc {
+static int maxChild = 10;	// Capacity of child table
+static int childInd = 0;	// Index of child table
+struct child_proc {			// Structure used to pair pid with arguments
 	pid_t pid;
 	char *args;
 } *child;
@@ -71,7 +70,6 @@ int main(int argc, char **argv)
     opterr = 0;				// Turns off automatic error message from getopt_long
     
     logicalfd = (int*) malloc (maxfd*sizeof(int)); // fd table. Key is logical fd. Value is real fd. 
-    filetype  = (int*) malloc (maxfd*sizeof(int)); // pipe-read = 1. pipe-write = 2. file = 0
 	child = (struct child_proc*) malloc (maxChild*sizeof(struct child_proc));  // keep track of child and the position of its arguments
     
     // Set up sa signal handler (only needed for ignore)
@@ -115,12 +113,11 @@ int main(int argc, char **argv)
         {0, 0, 0, 0}
     };
     
-    if (!logicalfd)		// Make sure logicalfd was allocated correctly
+    if (!logicalfd || !child)		// Make sure logicalfd was allocated correctly
     {
         fprintf (stderr, "Error: failed to allocate memory\n");
         exit(1);
     }
-    
     if (argc <= 1) // No arguments
     {
         printf("usage: %s --<command> ...\n", argv[0]);
@@ -185,11 +182,7 @@ int main(int argc, char **argv)
                     {
                         maxfd *= 2;
                         logicalfd = (int*) realloc (logicalfd, maxfd*sizeof(int)); // Double the array size
-                        filetype  = (int*) realloc (filetype,  maxfd*sizeof(int)); // Double the array size
                     }
-                    
-                    // This is a regular file and not a pipe
-                    filetype[fdInd]  = 0;
                     
                     if (args_found != 1)	// Error if num of args not 1
                     {
@@ -242,11 +235,7 @@ int main(int argc, char **argv)
                     {
                         maxfd *= 2;
                         logicalfd = (int*) realloc (logicalfd, maxfd*sizeof(int)); // Double the array size
-                        filetype  = (int*) realloc (filetype , maxfd*sizeof(int)); // Double the array size
                     }
-                    
-                    // This is a regular file and not a pipe
-                    filetype[fdInd]  = 0;
                     
                     if (args_found != 1)	// Error if num of args not 1
                     {
@@ -298,11 +287,7 @@ int main(int argc, char **argv)
                     {
                         maxfd *= 2;
                         logicalfd = (int*) realloc (logicalfd, maxfd*sizeof(int)); // Double the array size
-                        filetype  = (int*) realloc (filetype , maxfd*sizeof(int)); // Double the array size
                     }
-                    
-                    // This is a regular file and not a pipe
-                    filetype[fdInd]  = 0;
                     
                     if (args_found != 1)	// Error if num of args not 1
                     {
@@ -365,7 +350,6 @@ int main(int argc, char **argv)
 					{
 						close(logicalfd[fd_to_close]);
 						logicalfd[fd_to_close]= -1;
-						filetype[fd_to_close]=0;
 					}
 					else
 						fprintf (stderr, "Error: file descriptor to close is not open or not valid.\n");
@@ -382,8 +366,8 @@ int main(int argc, char **argv)
                     char *delim;		// Points to null byte at end of each option/arg
                     int execArgc = 0;	// Number of args to use with --command
                     int optstart = optind;	// Copy optind as it may change
-                    int input_type, output_type;
 					int childArgsSet = 0;
+					
                     // Process options while optind <= argc or encounter '--'
                     while (currOptInd <= argc)
                     {
@@ -397,17 +381,10 @@ int main(int argc, char **argv)
                         if (verbose_flag)
                             printf ("%s ", optarg+index);
                         if ((currOptInd-optstart) < 3) // If in the first 3 arguments (streams)...
-                        {
                             streams[currOptInd-optstart] = logicalfd[atoi(optarg+index)];
-                            // Checking if fd is a pipe and if so, the read or write end? 1=Read End | 2=Write End
-                            if( (currOptInd-optstart) == 0 )
-                                input_type = filetype[atoi(optarg+index)];
-                            if( (currOptInd-optstart) == 1 )
-                                output_type = filetype[atoi(optarg+index)];
-                        }
                         else  // If in arguments after streams
 						{
-							if (childArgsSet == 0)
+							if (childArgsSet == 0)	// Only set child args one time (needed for --wait output later)
 							{
 								child[childInd].args = optarg + index;
 								childArgsSet = 1;
@@ -435,7 +412,7 @@ int main(int argc, char **argv)
                     
                     // Encode test_flag at binary position 2.  Executecmd prints will be supressed.
     
-                    int exec_ret = executecmd(execArgv[0], streams, execArgv, wait_flag | (test_flag << 1), input_type, output_type);
+                    int exec_ret = executecmd(execArgv[0], streams, execArgv);
                     
                     if (exec_ret < 0) 	// Error occurred with executecmd
                         exit_status = 1;
@@ -463,19 +440,16 @@ int main(int argc, char **argv)
                     {
                         maxfd *= 2;
                         logicalfd = (int*) realloc (logicalfd, maxfd*sizeof(int)); // Double the array size
-                        filetype  = (int*) realloc (filetype,  maxfd*sizeof(int)); // Double the array size
                     }
 
-                    filetype[fdInd] = 1;      // Read End
-                    filetype[(fdInd+1)] = 2;  // Write End
-                    // if pipe() returns an error load logicalfd with two -1's
-                    if( error ==-1) {
+                    if (error == -1) {
                         fprintf(stderr, "Error: \"--pipe\". Error creating pipe");
                         // read end
                         logicalfd[fdInd]   = -1;
                         // write end
                         logicalfd[++fdInd] = -1;
                         fdInd++;
+						exit_status = 1;
                         break;
                     }
                     // else, transfer pipe file descriptors to logicalfd[]
@@ -662,15 +636,9 @@ int main(int argc, char **argv)
             }
         }
     }
-    // Debug File Descriptors
-    // putchar('\n');                                                                                                                                                                                             
-    // for (int i = 0; i < fdInd; i++){                                                                                                                                                                                                                                                                                                                                                      
-    //     printf("File Type: %d  |   File Descriptor: %d",filetype[i],logicalfd[i]);                                                                                                                                        
-    //     putchar('\n');                                                                                                                                                                                         
-    // } 
-
     free (logicalfd);
-    free (filetype);
+	free (child);
+	
     if (wait_flag || test_flag)
         exit(exit_max);
     else
@@ -719,7 +687,7 @@ void ignore_signal(int sig, siginfo_t *siginfo, void *context)
 		((ucontext_t*)context)->uc_mcontext.gregs[REG_RIP]++;	// Increment insn pointer to skip bad insn
 }
 
-int executecmd(const char *file, int streams[], char *const argv[], int wait_flag, int i, int o)
+int executecmd(const char *file, int streams[], char *const argv[])
 {
     pid_t pid;
     int status;
@@ -732,17 +700,6 @@ int executecmd(const char *file, int streams[], char *const argv[], int wait_fla
     }
     else if (pid == 0) // Child
     {   
-		// //close Opposite fd if the input is the read/write end of a pipe
-        // if(i == 1)
-            // close((streams[0]+1));
-        // if(i == 2)
-            // close((streams[0]-1));
-        // //Close Opposite fd if the output is the read/write end of a pipe
-        // if(o == 1)
-            // close((streams[1]+1));
-        // if(o == 2)
-            // close((streams[1]-1));
-
         if (dup2(streams[0], 0) == -1)
         {
             fprintf (stderr, "Error: failed to redirect stdin\n");
@@ -759,14 +716,13 @@ int executecmd(const char *file, int streams[], char *const argv[], int wait_fla
             return -1;
         }
 		
-		// Close all fds in case they are dependent on later commands
+		// Close all fds in case there are later commands dependent on pipes
 		int i;
 		for (i = 0; i < fdInd; i++)
 			close(logicalfd[i]);
 		
         // Execute command
-        // If return value < 0, error occurred
-        if (execvp(file, argv) < 0)
+        if (execvp(file, argv) < 0)	// If return value < 0, error occurred
         {
             fprintf (stderr, "Error: %s\n", strerror(errno));
             return -1;
@@ -783,25 +739,16 @@ int executecmd(const char *file, int streams[], char *const argv[], int wait_fla
 			child = (struct child_proc*) realloc (child, maxChild*sizeof(struct child_proc));  // Double the array size
 		}
 		
-		// Wait for child to return with status if test flag set
-        if (wait_flag >> 1)		// This is checking for --test, not --wait
+		// Serialize commands by waiting for each individually (--test mode)
+        if (test_flag)
         {
-            if (waitpid(pid, &status, 0) < 0)  // If error occurred
+            if (waitpid(pid, &status, 0) < 0)  // If error occurred...
             {
                 fprintf (stderr, "Error: %s\n", strerror(errno));
                 return -1;
             }
             else
             {
-                // if (!(wait_flag >> 1))  // Check for test_flag = 2.  If found, don't print.
-                // {
-                    // printf ("%d ", WEXITSTATUS(status));
-                    
-                    // int i;
-                    // for (i = 0; argv[i]; i++)
-                        // printf ("%s ", argv[i]);
-                    // printf ("\n");
-                // }   
 				if (WIFEXITED(status))	// Check if child exited normally
 					return WEXITSTATUS(status); // Mask LSB (8 bits) for status
 				else

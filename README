@@ -47,7 +47,12 @@ simpsh functionality:
 * Verifies that the appropriate number of arguments are given
 	--rdonly (1)
 	--wronly (1)
+	--rdwr (1)
+	--close (1)
 	--command (>= 4)
+	--catch (1)
+	--default (1)
+	--ignore (1)
 * Can accept short arguments for commands (ex: "ls -l")
 
 	
@@ -56,16 +61,18 @@ Lab 1a TODO:
 
 
 Lab 1b TODO:
-* Depricate executecmd.c?
+* N/A
 
   
-Notes  
-* test.sh runs simpsh with the "--test" option in order to avoid race conditions, 
-  since there are multiple commands in tests and some depend on others.
+Notes:
 * Option --test waits for each individual command to finish before starting a 
   new command (effectively serializing commands).  This is necessary for 
   verification testing only.
+* In order to test pipes with --wait, it is necessary to use --close on the
+  write ends of all pipes right before the --wait occurs.  Otherwise simpsh
+  will hang, which is the expected behavior.
   
-Known Issues
+  
+Known Issues:
 * None known
 
