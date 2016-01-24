@@ -1,6 +1,8 @@
 #!/bin/bash
 # If diffs come up clean, then tests have passed, and this will be outputed on
 # screen. There will be some output from 'make clean', 'make', and '--abort'.
+# A segmentation fault message will be displayed for test 8.  I couldn't figure
+# out a way to suppress it.
 
 make clean
 make
@@ -178,7 +180,7 @@ else
     echo "Test 10/$TESTNUM failed!?"
 fi
 
-# Test 11 - Pipe
+# Test 11 - One Pipe
 echo "ABCDEFGHIJK" > a
 rm b c d
 touch b
@@ -187,7 +189,7 @@ touch d
 
 cat a | tr A-Z a-z > d
 
-./simpsh --rdonly a --wronly b --pipe --wronly c --command 0 3 4 cat a --command 2 1 4 tr A-Z a-z --close 3 --wait
+(./simpsh --rdonly a --wronly b --pipe --wronly c --command 0 3 4 cat a --command 2 1 4 tr A-Z a-z --close 3 --wait)> /dev/null
 
 diff -u b d
 
@@ -208,7 +210,7 @@ touch d
 
 cat a | tr A-Z a-z | sort -r > d
 
-./simpsh --rdonly a --wronly b --pipe --wronly c --pipe --command 0 3 4 cat a --command 2 6 4 tr A-Z a-z --command 5 1 4 sort -r --close 3 --close 6 --wait
+(./simpsh --rdonly a --wronly b --pipe --wronly c --pipe --command 0 3 4 cat a --command 2 6 4 tr A-Z a-z --command 5 1 4 sort -r --close 3 --close 6 --wait)> /dev/null
 
 diff -u b d
 

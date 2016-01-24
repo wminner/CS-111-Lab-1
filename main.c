@@ -40,10 +40,18 @@ static int sync_flag = 0;
 static int trunc_flag = 0;
 
 // File Descriptor Tables
-static int maxfd = 100;        // Size of logicalfd table
+static int maxfd = 20;        // Size of logicalfd table
 static int *logicalfd;
 static int *filetype;  
 static int fdInd = 0;          // Index/capacity of fd table
+
+// Struct for process arguments
+static int maxChild = 10;
+static int childInd = 0;
+struct child_proc {
+	pid_t pid;
+	char *args;
+} *child;
 
 int main(int argc, char **argv)
 {
@@ -64,6 +72,7 @@ int main(int argc, char **argv)
     
     logicalfd = (int*) malloc (maxfd*sizeof(int)); // fd table. Key is logical fd. Value is real fd. 
     filetype  = (int*) malloc (maxfd*sizeof(int)); // pipe-read = 1. pipe-write = 2. file = 0
+	child = (struct child_proc*) malloc (maxChild*sizeof(struct child_proc));  // keep track of child and the position of its arguments
     
     // Set up sa signal handler (only needed for ignore)
     struct sigaction ignore;				// New sig handler
@@ -118,7 +127,7 @@ int main(int argc, char **argv)
     }
     else if (argc > 1) // At least one argument
     {
-        for (int i = 0; i < argc; i++)	// Pre-scan looking for "--test", "--pause", and "--wait"
+        for (int i = 0; i < argc; i++)	// Pre-scan looking for "--test" and "--pause"
         {
             if (strcmp(argv[i], "--test") == 0)	// Found "--test"
                 test_flag = 1;
@@ -374,6 +383,7 @@ int main(int argc, char **argv)
                     int execArgc = 0;	// Number of args to use with --command
                     int optstart = optind;	// Copy optind as it may change
                     int input_type, output_type;
+					int childArgsSet = 0;
                     // Process options while optind <= argc or encounter '--'
                     while (currOptInd <= argc)
                     {
@@ -396,7 +406,14 @@ int main(int argc, char **argv)
                                 output_type = filetype[atoi(optarg+index)];
                         }
                         else  // If in arguments after streams
-                            execArgv[execArgc++] = optarg+index;
+						{
+							if (childArgsSet == 0)
+							{
+								child[childInd].args = optarg + index;
+								childArgsSet = 1;
+							}
+							execArgv[execArgc++] = optarg+index;
+						}
                         
                         delim = strchr(optarg+index, '\0');	// Look for null byte
                         index = delim - optarg + 1;	// Find index into optarg using delim
@@ -589,8 +606,13 @@ int main(int argc, char **argv)
                     break;
 				case 't': 	// wait
 				{
+					if (verbose_flag)
+                        printf ("--wait\n");
+					
 					pid_t waited_pid;		// Stores pid of child reaped
-					int status;
+					int status, i; 
+					int index = 0;
+					char *delim;
 					wait_flag = 1;
 					
 					while (1)	// Keeping reaping until no more children
@@ -600,13 +622,26 @@ int main(int argc, char **argv)
 							break;
 						
 						if (WIFEXITED(status))
-							printf ("%d %d\n", WEXITSTATUS(status), waited_pid);
+							printf ("%d ", WEXITSTATUS(status));
 						
-						// int i;
-						// for (i = 0; argv[i]; i++)
-							// printf ("%s ", argv[i]);
-						// printf ("\n");
- 
+						// Loop through all children and find matching pid
+						for (i = 0; i < childInd; i++)
+						{
+							if (child[i].pid == waited_pid)
+							{
+								// Print out all the args of that command
+								while (!(child[i].args[index] == '-' && child[i].args[index+1] == '-'))
+								{
+									printf ("%s ", child[i].args+index);
+									delim = strchr(child[i].args+index, '\0');	// Look for null byte
+									index = delim - child[i].args + 1;
+								}
+								index = 0;
+								printf ("\n");
+								break;
+							}
+						}
+						 
 						if (WIFEXITED(status))	// Check if child exited normally
 						{
 							if (WEXITSTATUS(status) > exit_max) // Mask LSB (8 bits) for status
@@ -739,7 +774,16 @@ int executecmd(const char *file, int streams[], char *const argv[], int wait_fla
     }
     else // Parent
     {
-        // Wait for child to return with status if test flag set
+        child[childInd].pid = pid;
+		childInd++;
+		
+		if (childInd >= maxChild)	// If not enough space in child array...
+		{
+			maxChild *= 2;
+			child = (struct child_proc*) realloc (child, maxChild*sizeof(struct child_proc));  // Double the array size
+		}
+		
+		// Wait for child to return with status if test flag set
         if (wait_flag >> 1)		// This is checking for --test, not --wait
         {
             if (waitpid(pid, &status, 0) < 0)  // If error occurred
