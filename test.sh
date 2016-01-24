@@ -179,16 +179,17 @@ else
 fi
 
 # Test 11 - Pipe
-echo "ABCDEFGHIJK" > tempa
-touch tempb
-touch tempc
-touch testb
+echo "ABCDEFGHIJK" > a
+rm b c d
+touch b
+touch c
+touch d
 
-cat tempa | tr A-Z a-z > testb
+cat tempa | tr A-Z a-z > d
 
-./simpsh --rdonly tempa --wronly tempb --pipe --wronly tempc --command 0 3 4 cat tempa --command 2 1 4 tr A-Z a-z
+./simpsh --rdonly a --wronly b --pipe --wronly c --command 0 3 4 cat a --command 2 1 4 tr A-Z a-z
 
-diff -u tempb testb
+diff -u b d
 
 if [ $? -eq 0 ]
 then

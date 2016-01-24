@@ -28,4 +28,4 @@ check: test.sh
 	./test.sh
 
 clean:
-	rm -rf *~ *.o *.tar.gz simpsh $(DIR) a b c d tempa tempb tempc testb
+	rm -rf *~ *.o *.tar.gz simpsh $(DIR) a b c d *.tmp

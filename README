@@ -56,12 +56,11 @@ Lab 1a TODO:
 
 
 Lab 1b TODO:
-* Make sure FD still being incremented if open file fails, so FD number is as expected
-* Only increment %rip if internal SIGSEGV (if --pause, then assume external)
-* Use WIFEXITED(status) to check if child exited normally
-* Test --pipe for harder cases
-* Confirm --close has no weird edge cases/More error handling?
+* Pipe not working when --wait is used (hangs forever)
+* Test 11 in test.sh inconsistent because diff sometimes happens before simpsh 
+  is done (need to use --wait, but bug in pipe preventing this right now)
 
+  
 Notes  
 * test.sh runs simpsh with the "--test" option in order to avoid race conditions, 
   since there are multiple commands in tests and some depend on others.

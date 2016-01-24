@@ -24,6 +24,7 @@ int executecmd(const char *file, int streams[], char *const argv[], int wait_fla
 static int verbose_flag = 0;
 static int wait_flag = 0;		// Flag to wait for child processes or not
 static int test_flag = 0;		// Activates test mode, serializing all commands for verification testing
+static int pause_flag = 0;		// Lets --catch know whether it should increment %rip or not.  Assume pause means SIGSEGV is external.
 
 // File Oflags
 static int append_flag = 0;
@@ -118,22 +119,16 @@ int main(int argc, char **argv)
     }
     else if (argc > 1) // At least one argument
     {
-        for (int i = 0; i < argc; i++)	// Pre-scan looking for "--test"
+        for (int i = 0; i < argc; i++)	// Pre-scan looking for "--test", "--pause", and "--wait"
         {
             if (strcmp(argv[i], "--test") == 0)	// Found "--test"
-            {
                 test_flag = 1;
-                break;
-            }
-        }
-        
-        for (int i = 0; i < argc; i++)	// Pre-scan looking for "--wait"
-        {
-            if (strcmp(argv[i], "--wait") == 0)	// Found "--wait"
+			if (strcmp(argv[i], "--pause") == 0)// Found "--pause"
+                pause_flag = 1;
+			if (strcmp(argv[i], "--wait") == 0)	// Found "--wait"
             {
                 wait_flag = 1;
                 ever_waited = 1;
-                break;
             }
         }
         
@@ -325,18 +320,44 @@ int main(int argc, char **argv)
                     args_found = 0;		// Reset args found for next option
                     break;
                 case 'x':   // close
-                    // No Nth file Argument
-                    if(optarg[0] == '-') {
-                        fprintf (stderr, "Error: \"--close\" requires one argument.");
+                    if (verbose_flag)
+                        printf ("--close ");
+										
+					// Process options while optind <= argc or encounter '--' 
+                    while (currOptInd <= argc)
+                    {
+                        if (optarg[index] == '-' && optarg[index+1] == '-') // Check for '--'
+                            break;
+                        else	// Else, found another argument
+                            args_found++;
+                        if (verbose_flag)
+                            printf ("%s ", optarg+index);
+                        while (optarg[index] != '\0')
+                            index++;
+                        index++;
+                        currOptInd++;
+                    }
+                    if (verbose_flag)
+                        printf ("\n");
+                    
+                    if (args_found != 1)	// Error if num of args not 1
+                    {
+                        fprintf (stderr, "Error: \"--close\" requires one argument.  You supplied %d arguments.\n", args_found);
+                        exit_status = 1;
+                        args_found = 0;
                         break;
                     }
-                    int fd_to_close = atoi(optarg);
-                    if(verbose_flag)
-                        printf("--verbose %d", fd_to_close);
-                    // Possible Check if valid fd?
-                    close(logicalfd[fd_to_close]);
-                    logicalfd[fd_to_close]= -1;
-                    filetype[fd_to_close]=0;
+					
+					int fd_to_close = atoi(optarg);
+                    // Check if valid fd
+					if (fd_to_close > 0 && logicalfd[fd_to_close] > 0)
+					{
+						close(logicalfd[fd_to_close]);
+						logicalfd[fd_to_close]= -1;
+						filetype[fd_to_close]=0;
+					}
+					else
+						fprintf (stderr, "Error: file descriptor to close is not open or not valid.\n");
                     break;
                 case 'c':	// command
                 {
@@ -617,7 +638,8 @@ void ignore_signal(int sig, siginfo_t *siginfo, void *context)
     //fprintf (stderr, "%d ignored\n", sig);
     if (sig && siginfo)
     {;}		// temp to avoid warning of unused parameter from compiler
-    ((ucontext_t*)context)->uc_mcontext.gregs[REG_RIP]++;	// Increment insn pointer to skip bad insn
+	if (!pause_flag)	// If not --pause, then assume signal is internal (--abort), then need to skip bad insn
+		((ucontext_t*)context)->uc_mcontext.gregs[REG_RIP]++;	// Increment insn pointer to skip bad insn
 }
 
 int executecmd(const char *file, int streams[], char *const argv[], int wait_flag, int i, int o)
@@ -646,12 +668,12 @@ int executecmd(const char *file, int streams[], char *const argv[], int wait_fla
 
         if (dup2(streams[0], 0) == -1)
         {
-            fprintf (stderr, "Error: failed to redirect stdin");
+            fprintf (stderr, "Error: failed to redirect stdin\n");
             return -1;
         }
         if (dup2(streams[1], 1) == -1)
         {
-            fprintf (stderr, "Error: failed to redirect stdout");
+            fprintf (stderr, "Error: failed to redirect stdout\n");
             return -1;
         }
         if (dup2(streams[2], 2) == -1)
@@ -688,7 +710,10 @@ int executecmd(const char *file, int streams[], char *const argv[], int wait_fla
                         printf ("%s ", argv[i]);
                     printf ("\n");
                 }   
-                return WEXITSTATUS(status); // Mask LSB (8 bits) for status
+				if (WIFEXITED(status))	// Check if child exited normally
+					return WEXITSTATUS(status); // Mask LSB (8 bits) for status
+				else
+					return -1;
             }
         }
         else    // Otherwise just return
