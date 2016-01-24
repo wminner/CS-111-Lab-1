@@ -5,7 +5,7 @@
 make clean
 make
 
-TESTNUM=11
+TESTNUM=12
 PASSNUM=0
 
 # Test 1 - cat
@@ -197,6 +197,27 @@ then
     PASSNUM=$((PASSNUM+1))
 else
     echo "Test 11/$TESTNUM failed!?"
+    fi
+
+# Test 12 - Two Pipes
+printf "A\nB\nC\nD\nE\nF\nG\nH\nI\nJ\nK\n" > a
+rm b c d
+touch b
+touch c
+touch d
+
+cat a | tr A-Z a-z | sort -r > d
+
+./simpsh --rdonly a --wronly b --pipe --wronly c --pipe --command 0 3 4 cat a --command 2 6 4 tr A-Z a-z --command 5 1 4 sort -r --close 3 --close 6 --wait
+
+diff -u b d
+
+if [ $? -eq 0 ]
+then
+    echo "Test 12/$TESTNUM passed"
+    PASSNUM=$((PASSNUM+1))
+else
+    echo "Test 12/$TESTNUM failed!?"
     fi
 
 if [ $PASSNUM -eq $TESTNUM ]

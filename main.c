@@ -697,16 +697,16 @@ int executecmd(const char *file, int streams[], char *const argv[], int wait_fla
     }
     else if (pid == 0) // Child
     {   
-        //close Opposite fd if the input is the read/write end of a pipe
-        if(i == 1)
-            close((streams[0]+1));
-        if(i == 2)
-            close((streams[0]-1));
-        //Close Opposite fd if the output is the read/write end of a pipe
-        if(o == 1)
-            close((streams[1]+1));
-        if(o == 2)
-            close((streams[1]-1));
+		// //close Opposite fd if the input is the read/write end of a pipe
+        // if(i == 1)
+            // close((streams[0]+1));
+        // if(i == 2)
+            // close((streams[0]-1));
+        // //Close Opposite fd if the output is the read/write end of a pipe
+        // if(o == 1)
+            // close((streams[1]+1));
+        // if(o == 2)
+            // close((streams[1]-1));
 
         if (dup2(streams[0], 0) == -1)
         {
@@ -723,6 +723,12 @@ int executecmd(const char *file, int streams[], char *const argv[], int wait_fla
             // Don't try to write to stderr because could cause infinite loop
             return -1;
         }
+		
+		// Close all fds in case they are dependent on later commands
+		int i;
+		for (i = 0; i < fdInd; i++)
+			close(logicalfd[i]);
+		
         // Execute command
         // If return value < 0, error occurred
         if (execvp(file, argv) < 0)
