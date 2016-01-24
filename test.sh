@@ -187,7 +187,7 @@ touch d
 
 cat a | tr A-Z a-z > d
 
-./simpsh --rdonly a --wronly b --pipe --wronly c --command 0 3 4 cat a --command 2 1 4 tr A-Z a-z
+./simpsh --rdonly a --wronly b --pipe --wronly c --command 0 3 4 cat a --command 2 1 4 tr A-Z a-z --close 3 --wait
 
 diff -u b d
 

@@ -53,7 +53,7 @@ int main(int argc, char **argv)
     int currOptInd = 0;		// Current option index
     int index = 0;			// Index into optarg
     int flags;				// Flags to open file with
-    int ever_waited = 0;	// Tracks if simpsh ever waited for a process
+    //int ever_waited = 0;	// Tracks if simpsh ever waited for a process
 
     int exit_status = 0;	// Keeps track of how the program should exit
     int exit_max = 0;		// Sum of child process exit statuses to use when wait_flag set
@@ -76,7 +76,6 @@ int main(int argc, char **argv)
         /* Flag setting options */
         {"verbose",   no_argument, &verbose_flag,   1},
         {"brief",     no_argument, &verbose_flag,   0},
-        {"wait", 	  no_argument, &wait_flag,      0},	// Pre-scan turns wait on. Turn off after you pass it.
         {"test",      no_argument, &test_flag,      1},
         
         /* Oflags go to -1 so we can AND them with actual oflags */
@@ -104,6 +103,7 @@ int main(int argc, char **argv)
         {"ignore",  required_argument, 0, 'i' },
         {"default", required_argument, 0, 'd' },
         {"close",   required_argument, 0, 'x' },
+		{"wait", 	no_argument,       0, 't' },
         {0, 0, 0, 0}
     };
     
@@ -125,11 +125,11 @@ int main(int argc, char **argv)
                 test_flag = 1;
 			if (strcmp(argv[i], "--pause") == 0)// Found "--pause"
                 pause_flag = 1;
-			if (strcmp(argv[i], "--wait") == 0)	// Found "--wait"
-            {
-                wait_flag = 1;
-                ever_waited = 1;
-            }
+			// if (strcmp(argv[i], "--wait") == 0)	// Found "--wait"
+            // {
+                 // wait_flag = 1;
+                 // ever_waited = 1;
+            // }
         }
         
         while (1) 	// Loop until getop_long doesn't find anything (then break)
@@ -192,6 +192,8 @@ int main(int argc, char **argv)
                     {
                         fprintf (stderr, "Error: \"--rdonly\" requires one argument.  You supplied %d arguments.\n", args_found);
                         exit_status = 1;
+						if (args_found == 0)	// If no args found, decrement optind so we don't skip the next option
+							optind--;
                         args_found = 0;
                         logicalfd[fdInd] = -1;
                         fdInd++;
@@ -247,7 +249,9 @@ int main(int argc, char **argv)
                     {
                         fprintf (stderr, "Error: \"--wronly\" requires one argument.  You supplied %d arguments.\n", args_found);
                         exit_status = 1;
-                        args_found = 0;
+                        if (args_found == 0)	// If no args found, decrement optind so we don't skip the next option
+							optind--;
+						args_found = 0;
                         logicalfd[fdInd] = -1;
                         fdInd++;
                         break;
@@ -301,7 +305,9 @@ int main(int argc, char **argv)
                     {
                         fprintf (stderr, "Error: \"--rdwr\" requires one argument.  You supplied %d arguments.\n", args_found);
                         exit_status = 1;
-                        args_found = 0;
+                        if (args_found == 0)	// If no args found, decrement optind so we don't skip the next option
+							optind--;
+						args_found = 0;
                         logicalfd[fdInd] = -1;
                         fdInd++;
                         break;
@@ -344,6 +350,8 @@ int main(int argc, char **argv)
                     {
                         fprintf (stderr, "Error: \"--close\" requires one argument.  You supplied %d arguments.\n", args_found);
                         exit_status = 1;
+						if (args_found == 0)	// If no args found, decrement optind so we don't skip the next option
+							optind--;
                         args_found = 0;
                         break;
                     }
@@ -358,6 +366,8 @@ int main(int argc, char **argv)
 					}
 					else
 						fprintf (stderr, "Error: file descriptor to close is not open or not valid.\n");
+					
+					args_found = 0;		// Reset args found for next option
                     break;
                 case 'c':	// command
                 {
@@ -418,7 +428,7 @@ int main(int argc, char **argv)
                     
                     if (exec_ret < 0) 	// Error occurred with executecmd
                         exit_status = 1;
-                    else				// Sum process's exit status
+                    else				// Find max exit status among processes
                         if (exec_ret > exit_max)
                             exit_max = exec_ret;
                     
@@ -496,6 +506,8 @@ int main(int argc, char **argv)
                     {
                         fprintf (stderr, "Error: \"--catch\" requires one argument.  You supplied %d arguments.\n", args_found);
                         exit_status = 1;
+						if (args_found == 0)	// If no args found, decrement optind so we don't skip the next option
+							optind--;
                         args_found = 0;
                         break;
                     }
@@ -529,6 +541,8 @@ int main(int argc, char **argv)
                     {
                         fprintf (stderr, "Error: \"--ignore\" requires one argument.  You supplied %d arguments.\n", args_found);
                         exit_status = 1;
+						if (args_found == 0)	// If no args found, decrement optind so we don't skip the next option
+							optind--;
                         args_found = 0;
                         break;
                     }
@@ -567,6 +581,8 @@ int main(int argc, char **argv)
                     {
                         fprintf (stderr, "Error: \"--default\" requires one argument.  You supplied %d arguments.\n", args_found);
                         exit_status = 1;
+						if (args_found == 0)	// If no args found, decrement optind so we don't skip the next option
+							optind--;
                         args_found = 0;
                         break;
                     }
@@ -575,6 +591,36 @@ int main(int argc, char **argv)
                     
                     args_found = 0;		// Reset args found for next option
                     break;
+				case 't': 	// wait
+				{
+					pid_t waited_pid;		// Stores pid of child reaped
+					int status;
+					wait_flag = 1;
+					
+					while (1)	// Keeping reaping until no more children
+					{
+						waited_pid = waitpid(-1, &status, 0);
+						if (waited_pid < 0)	  // No more children to wait on
+							break;
+						
+						if (WIFEXITED(status))
+							printf ("%d %d\n", WEXITSTATUS(status), waited_pid);
+						
+						// int i;
+						// for (i = 0; argv[i]; i++)
+							// printf ("%s ", argv[i]);
+						// printf ("\n");
+ 
+						if (WIFEXITED(status))	// Check if child exited normally
+						{
+							if (WEXITSTATUS(status) > exit_max) // Mask LSB (8 bits) for status
+								exit_max = WEXITSTATUS(status);
+						}
+						else
+							exit_status = 1;
+					}
+					break;
+				}
                 case '?':
                     fprintf (stderr, "Error: unrecognized option \"%s\"\n", argv[optind]);
                     exit_status = 1;
@@ -594,7 +640,7 @@ int main(int argc, char **argv)
 
     free (logicalfd);
     free (filetype);
-    if (ever_waited || test_flag)
+    if (wait_flag || test_flag)
         exit(exit_max);
     else
         exit(exit_status);
@@ -691,8 +737,8 @@ int executecmd(const char *file, int streams[], char *const argv[], int wait_fla
     }
     else // Parent
     {
-        // Wait for child to return with status if wait flag set
-        if (wait_flag)
+        // Wait for child to return with status if test flag set
+        if (wait_flag >> 1)		// This is checking for --test, not --wait
         {
             if (waitpid(pid, &status, 0) < 0)  // If error occurred
             {
@@ -701,15 +747,15 @@ int executecmd(const char *file, int streams[], char *const argv[], int wait_fla
             }
             else
             {
-                if (!(wait_flag >> 1))  // Check for test_flag = 2.  If found, don't print.
-                {
-                    printf ("%d ", WEXITSTATUS(status));
+                // if (!(wait_flag >> 1))  // Check for test_flag = 2.  If found, don't print.
+                // {
+                    // printf ("%d ", WEXITSTATUS(status));
                     
-                    int i;
-                    for (i = 0; argv[i]; i++)
-                        printf ("%s ", argv[i]);
-                    printf ("\n");
-                }   
+                    // int i;
+                    // for (i = 0; argv[i]; i++)
+                        // printf ("%s ", argv[i]);
+                    // printf ("\n");
+                // }   
 				if (WIFEXITED(status))	// Check if child exited normally
 					return WEXITSTATUS(status); // Mask LSB (8 bits) for status
 				else

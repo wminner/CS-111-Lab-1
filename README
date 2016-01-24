@@ -56,9 +56,9 @@ Lab 1a TODO:
 
 
 Lab 1b TODO:
-* Pipe not working when --wait is used (hangs forever)
-* Test 11 in test.sh inconsistent because diff sometimes happens before simpsh 
-  is done (need to use --wait, but bug in pipe preventing this right now)
+* Pipe works when write end is closed before --wait, but --wait not outputting according to spec now (test 2)
+* Need to save argv's of each command into a data structure with associated child pid, so it can be
+  printed when childed is reaped (test 2)
 
   
 Notes  
