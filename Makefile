@@ -1,7 +1,7 @@
 # CS 111 Lab 1 Makefile
 
 CC = gcc
-#CFLAGS = -g -Wall -Wextra -Werror
+#CFLAGS = -O4 -g -Wall -Wextra -Werror -Wno-unused
 CFLAGS = -g -Wall -Wextra
 DIR = lab1-$(USER)
 

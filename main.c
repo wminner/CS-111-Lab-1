@@ -53,7 +53,6 @@ int main(int argc, char **argv)
     int currOptInd = 0;		// Current option index
     int index = 0;			// Index into optarg
     int flags;				// Flags to open file with
-    //int ever_waited = 0;	// Tracks if simpsh ever waited for a process
 
     int exit_status = 0;	// Keeps track of how the program should exit
     int exit_max = 0;		// Sum of child process exit statuses to use when wait_flag set
@@ -125,11 +124,6 @@ int main(int argc, char **argv)
                 test_flag = 1;
 			if (strcmp(argv[i], "--pause") == 0)// Found "--pause"
                 pause_flag = 1;
-			// if (strcmp(argv[i], "--wait") == 0)	// Found "--wait"
-            // {
-                 // wait_flag = 1;
-                 // ever_waited = 1;
-            // }
         }
         
         while (1) 	// Loop until getop_long doesn't find anything (then break)
@@ -476,9 +470,11 @@ int main(int argc, char **argv)
                 }
                 case 'a':	// abort
                 {
-                    int *null_ptr = NULL;
-                    if (*null_ptr)		// Cause segmentation fault
-                        continue;
+                    if (raise(SIGSEGV) != 0)	// Cause segmentation fault
+					{
+						fprintf (stderr, "Error: unable to abort\n");
+						exit_status = 1;
+					}
                     break;
                 }
                 case 's':	// catch (signal)
