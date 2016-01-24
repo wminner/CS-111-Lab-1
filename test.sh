@@ -7,7 +7,7 @@
 make clean
 make
 
-TESTNUM=12
+TESTNUM=13
 PASSNUM=0
 
 # Test 1 - cat
@@ -199,7 +199,7 @@ then
     PASSNUM=$((PASSNUM+1))
 else
     echo "Test 11/$TESTNUM failed!?"
-    fi
+fi
 
 # Test 12 - Two Pipes
 printf "A\nB\nC\nD\nE\nF\nG\nH\nI\nJ\nK\n" > a
@@ -220,7 +220,32 @@ then
     PASSNUM=$((PASSNUM+1))
 else
     echo "Test 12/$TESTNUM failed!?"
-    fi
+fi
+
+# Test 13 - Spec Test
+printf "4\n3\n2\n1\n" > a
+echo "THIS IS FILE B" > b
+rm c d
+
+(sort < a | cat b - | tr A-Z a-z > c) 2>> d
+
+(./simpsh --rdonly a --pipe --pipe --creat --trunc --wronly e --creat --append --wronly f --command 3 5 6 tr A-Z a-z --command 0 2 6 sort --command 1 4 6 cat b - --close 2 --close 4 --wait)> /dev/null
+
+diff -u c e
+DIFF1=$?
+
+diff -u d f
+DIFF2=$?
+
+if [ $DIFF1 -eq 0 -a $DIFF2 -eq 0 ]
+then
+    echo "Test 13/$TESTNUM passed"
+    PASSNUM=$((PASSNUM+1))
+else
+    echo "Test 13/$TESTNUM failed!?"
+fi
+
+rm e f
 
 if [ $PASSNUM -eq $TESTNUM ]
 then
