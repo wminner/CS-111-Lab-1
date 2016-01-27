@@ -60,6 +60,7 @@ int main(int argc, char **argv)
     int currOptInd = 0;		// Current option index
     int index = 0;			// Index into optarg
     int flags;				// Flags to open file with
+	int signum;				// Used to keep signal number
 
     int exit_status = 0;	// Keeps track of how the program should exit
     int exit_max = 0;		// Sum of child process exit statuses to use when wait_flag set
@@ -346,13 +347,13 @@ int main(int argc, char **argv)
 					
 					int fd_to_close = atoi(optarg);
                     // Check if valid fd
-					if (fd_to_close > 0 && logicalfd[fd_to_close] > 0)
+					if (fd_to_close >= 0 && logicalfd[fd_to_close] >= 0)
 					{
 						close(logicalfd[fd_to_close]);
 						logicalfd[fd_to_close]= -1;
 					}
 					else
-						fprintf (stderr, "Error: file descriptor to close is not open or not valid.\n");
+						fprintf (stderr, "Error: file descriptor %d to close is not open or not valid.\n", fd_to_close);
 					
 					args_found = 0;		// Reset args found for next option
                     break;
@@ -498,8 +499,15 @@ int main(int argc, char **argv)
                         args_found = 0;
                         break;
                     }
-                    
-                    signal(atoi(optarg), &catch_signal);	// Catch signal
+					
+                    signum = atoi(optarg);
+					if (signum < 0)
+					{
+						fprintf(stderr, "Error: invalid signal number %d\n", signum);
+						exit_status = 1;
+					}
+					else
+						signal(signum, &catch_signal);	// Catch signal
                     
                     args_found = 0;		// Reset args found for next option
                     break;
@@ -534,12 +542,21 @@ int main(int argc, char **argv)
                         break;
                     }
                     
-                    // Reassign signal handler to ignore handler
-                    if (sigaction(atoi(optarg), &ignore, NULL) < 0)
-                    {
-                        fprintf (stderr, "Error: sigaction failed\n");
-                        exit_status = 1;
-                    }
+                    signum = atoi(optarg);
+					if (signum < 0)
+					{
+						fprintf(stderr, "Error: invalid signal number %d\n", signum);
+						exit_status = 1;
+					}
+					else
+					{
+						// Reassign signal handler to ignore handler
+						if (sigaction(signum, &ignore, NULL) < 0)
+						{
+							fprintf (stderr, "Error: sigaction failed\n");
+							exit_status = 1;
+						}
+					}
                     
                     args_found = 0;		// Reset args found for next option
                     break;
@@ -574,7 +591,14 @@ int main(int argc, char **argv)
                         break;
                     }
                     
-                    signal(atoi(optarg), SIG_DFL);	// Set to default signal handler
+					signum = atoi(optarg);
+					if (signum < 0)
+					{
+						fprintf(stderr, "Error: invalid signal number %d\n", signum);
+						exit_status = 1;
+					}
+					else
+						signal(signum, SIG_DFL);	// Set to default signal handler
                     
                     args_found = 0;		// Reset args found for next option
                     break;

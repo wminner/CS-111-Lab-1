@@ -63,6 +63,20 @@ Lab 1a TODO:
 Lab 1b TODO:
 * N/A
 
+
+Lab 1c TODO:
+* --profile: getrusage
+* create 3 test cases for simpsh
+* translate test cases to bash
+* translate test cases to execline
+
+
+Lab 1b Design Problem TODO:
+* Allow flags to apply to pipes using pipe2
+* Extend shell to wait for individual sub commands, instead of waiting for all to finish (--test)
+	--wait N:  waits for nth --command and outputs command name and options
+* Detect and prevent pipe cycles
+
   
 Notes:
 * Option --test waits for each individual command to finish before starting a 
