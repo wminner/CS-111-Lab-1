@@ -5,7 +5,7 @@
 
 #include <unistd.h> // close, dup2, execvp, fork, getopt_long
 #include <fcntl.h> 	// open
-#include <signal.h> // sigaction
+#include <signal.h> // signal
 #include <getopt.h> // struct option (longopts)
 
 #include <sys/wait.h> // waitpid
@@ -20,7 +20,7 @@ int openfile(const char *pathname, int flags);	// openfile.c
 int findoflags(int open_flag);
 void clearoflags();
 void catch_signal(int sig);
-void ignore_signal(int sig, siginfo_t *siginfo, void *context);
+void ignore_signal(int sig);
 int executecmd(const char *file, int streams[], char *const argv[]);
 
 // General Option Flags
@@ -84,14 +84,10 @@ int main(int argc, char **argv)
 	long block_out_ops;		// Block output operations
 	long vol_context_switch;	// Voluntary context switches
 	long invol_context_switch;	// Involuntary context switches
+	int profile_succeed = 1;	// Becomes 0 if getrusage fails parent profiling
     
     logicalfd = (int*) malloc (maxfd*sizeof(int)); // fd table. Key is logical fd. Value is real fd. 
 	child = (struct child_proc*) malloc (maxChild*sizeof(struct child_proc));  // keep track of child and the position of its arguments
-    
-    // Set up sa signal handler (only needed for ignore)
-    struct sigaction ignore;				// New sig handler
-    ignore.sa_sigaction = &ignore_signal;	// Assign handler
-    ignore.sa_flags = SA_SIGINFO;			// Use sa_sigaction instead of sa_handler
     
     static struct option long_options[] =
     {
@@ -382,7 +378,12 @@ int main(int argc, char **argv)
 					
 					// BEGIN profiling
 					if (profile_flag)
-						getrusage(RUSAGE_SELF, &usage[0]);	// Start profiling (parent)
+						if (getrusage(RUSAGE_SELF, &usage[0]) < 0)	// Start profiling (parent)
+						{
+							profile_succeed = 0;
+							fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
+							exit_status = 1;
+						}
 					                    
                     int streams[3];		// Holds three fd streams to use with dup2
                     char *execArgv[argc - optind + 1];	// Size is conservatively set to number of arguments remaining to be parsed
@@ -444,32 +445,41 @@ int main(int argc, char **argv)
 					// END profiling
 					if (profile_flag)
 					{
-						getrusage(RUSAGE_SELF, &usage[1]);	// Stop profiling (parent)
-						// Add seconds
-						user_time = usage[1].ru_utime.tv_sec - usage[0].ru_utime.tv_sec;
-						kernel_time = usage[1].ru_stime.tv_sec - usage[0].ru_stime.tv_sec;
-						// Add microseconds
-						user_time += (usage[1].ru_utime.tv_usec - usage[0].ru_utime.tv_usec)/1000000.0;
-						kernel_time += (usage[1].ru_stime.tv_usec - usage[0].ru_stime.tv_usec)/1000000.0;
-						// Other resources
-						max_res_set_size = usage[1].ru_maxrss - usage[0].ru_maxrss;
-						page_reclaims = usage[1].ru_minflt - usage[0].ru_minflt;
-						page_faults = usage[1].ru_majflt - usage[0].ru_majflt;
-						block_in_ops = usage[1].ru_inblock - usage[0].ru_inblock;
-						block_out_ops = usage[1].ru_oublock - usage[0].ru_oublock;
-						vol_context_switch = usage[1].ru_nvcsw - usage[0].ru_nvcsw;
-						invol_context_switch = usage[1].ru_nivcsw - usage[0].ru_nivcsw;
+						if (getrusage(RUSAGE_SELF, &usage[1]) < 0)	// Stop profiling (parent)
+						{
+							profile_succeed = 0;
+							fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
+							exit_status = 1;
+						}
 						
-						printf ("Profiling command \"%s\"...\n", child[childInd-1].args);
-						printf ("  User CPU Time:                %.6fs\n", user_time);
-						printf ("  System CPU Time:              %.6fs\n", kernel_time);
-						printf ("  Max resident set size:        %ldkB\n", max_res_set_size);
-						printf ("  Page reclaims:                %ld\n", page_reclaims);
-						printf ("  Page faults:                  %ld\n", page_faults);
-						printf ("  Block input Ops:              %ld\n", block_in_ops);
-						printf ("  Block output Ops:             %ld\n", block_out_ops);
-						printf ("  Voluntary context switches:   %ld\n", vol_context_switch);
-						printf ("  Involuntary context switches: %ld\n", invol_context_switch);
+						if (profile_succeed)		// Only check usage if getrusage succeeded
+						{
+							// Add seconds
+							user_time = usage[1].ru_utime.tv_sec - usage[0].ru_utime.tv_sec;
+							kernel_time = usage[1].ru_stime.tv_sec - usage[0].ru_stime.tv_sec;
+							// Add microseconds
+							user_time += (usage[1].ru_utime.tv_usec - usage[0].ru_utime.tv_usec)/1000000.0;
+							kernel_time += (usage[1].ru_stime.tv_usec - usage[0].ru_stime.tv_usec)/1000000.0;
+							// Other resources
+							max_res_set_size = usage[1].ru_maxrss - usage[0].ru_maxrss;
+							page_reclaims = usage[1].ru_minflt - usage[0].ru_minflt;
+							page_faults = usage[1].ru_majflt - usage[0].ru_majflt;
+							block_in_ops = usage[1].ru_inblock - usage[0].ru_inblock;
+							block_out_ops = usage[1].ru_oublock - usage[0].ru_oublock;
+							vol_context_switch = usage[1].ru_nvcsw - usage[0].ru_nvcsw;
+							invol_context_switch = usage[1].ru_nivcsw - usage[0].ru_nivcsw;
+							
+							printf ("Profiling command \"%s\"...\n", child[childInd-1].args);
+							printf ("  User CPU Time:                %.6fs\n", user_time);
+							printf ("  System CPU Time:              %.6fs\n", kernel_time);
+							printf ("  Max resident set size:        %ldkB\n", max_res_set_size);
+							printf ("  Page reclaims:                %ld\n", page_reclaims);
+							printf ("  Page faults:                  %ld\n", page_faults);
+							printf ("  Block input Ops:              %ld\n", block_in_ops);
+							printf ("  Block output Ops:             %ld\n", block_out_ops);
+							printf ("  Voluntary context switches:   %ld\n", vol_context_switch);
+							printf ("  Involuntary context switches: %ld\n", invol_context_switch);
+						}
 					}
 					
                     args_found = 0;
@@ -552,13 +562,19 @@ int main(int argc, char **argv)
                     }
 					
                     signum = atoi(optarg);
-					if (signum < 0)
+					if (signum < 1 || signum > 64)
 					{
 						fprintf(stderr, "Error: invalid signal number %d\n", signum);
 						exit_status = 1;
 					}
 					else
-						signal(signum, &catch_signal);	// Catch signal
+					{
+						if (signal(signum, &catch_signal) == SIG_ERR)	// Catch signal
+						{
+							fprintf (stderr, "Error: --catch failed. %s\n", strerror(errno));
+							exit_status = 1;
+						}
+					}
                     
                     args_found = 0;		// Reset args found for next option
                     break;
@@ -594,7 +610,7 @@ int main(int argc, char **argv)
                     }
                     
                     signum = atoi(optarg);
-					if (signum < 0)
+					if (signum < 1 || signum > 64)
 					{
 						fprintf(stderr, "Error: invalid signal number %d\n", signum);
 						exit_status = 1;
@@ -602,9 +618,9 @@ int main(int argc, char **argv)
 					else
 					{
 						// Reassign signal handler to ignore handler
-						if (sigaction(signum, &ignore, NULL) < 0)
+						if (signal(signum, &ignore_signal) == SIG_ERR)
 						{
-							fprintf (stderr, "Error: sigaction failed\n");
+							fprintf (stderr, "Error: --ignore failed. %s\n", strerror(errno));
 							exit_status = 1;
 						}
 					}
@@ -643,13 +659,19 @@ int main(int argc, char **argv)
                     }
                     
 					signum = atoi(optarg);
-					if (signum < 0)
+					if (signum < 1 || signum > 64)
 					{
 						fprintf(stderr, "Error: invalid signal number %d\n", signum);
 						exit_status = 1;
 					}
 					else
-						signal(signum, SIG_DFL);	// Set to default signal handler
+					{
+						if (signal(signum, SIG_DFL) == SIG_ERR)	// Set to default signal handler
+						{
+							fprintf (stderr, "Error: --default failed. %s\n", strerror(errno));
+							exit_status = 1;
+						}
+					}
                     
                     args_found = 0;		// Reset args found for next option
                     break;
@@ -702,32 +724,39 @@ int main(int argc, char **argv)
 					
 					if (profile_flag)
 					{
-						getrusage(RUSAGE_CHILDREN, &usage[2]);	// Get all children usage data
-						// Add seconds
-						user_time = usage[2].ru_utime.tv_sec;
-						kernel_time = usage[2].ru_stime.tv_sec;
-						// Add microseconds
-						user_time += usage[2].ru_utime.tv_usec/1000000.0;
-						kernel_time += usage[2].ru_stime.tv_usec/1000000.0;
-						// Other resources
-						max_res_set_size = usage[2].ru_maxrss;
-						page_reclaims = usage[2].ru_minflt;
-						page_faults = usage[2].ru_majflt;
-						block_in_ops = usage[2].ru_inblock;
-						block_out_ops = usage[2].ru_oublock;
-						vol_context_switch = usage[2].ru_nvcsw;
-						invol_context_switch = usage[2].ru_nivcsw;
-						
-						printf ("Profiling all children...\n");
-						printf ("  User CPU Time:                %.6fs\n", user_time);
-						printf ("  System CPU Time:              %.6fs\n", kernel_time);
-						printf ("  Max resident set size:        %ldkB\n", max_res_set_size);
-						printf ("  Page reclaims:                %ld\n", page_reclaims);
-						printf ("  Page faults:                  %ld\n", page_faults);
-						printf ("  Block input Ops:              %ld\n", block_in_ops);
-						printf ("  Block output Ops:             %ld\n", block_out_ops);
-						printf ("  Voluntary context switches:   %ld\n", vol_context_switch);
-						printf ("  Involuntary context switches: %ld\n", invol_context_switch);
+						if (getrusage(RUSAGE_CHILDREN, &usage[2]) == 0)	// Get all children usage data
+						{
+							// Add seconds
+							user_time = usage[2].ru_utime.tv_sec;
+							kernel_time = usage[2].ru_stime.tv_sec;
+							// Add microseconds
+							user_time += usage[2].ru_utime.tv_usec/1000000.0;
+							kernel_time += usage[2].ru_stime.tv_usec/1000000.0;
+							// Other resources
+							max_res_set_size = usage[2].ru_maxrss;
+							page_reclaims = usage[2].ru_minflt;
+							page_faults = usage[2].ru_majflt;
+							block_in_ops = usage[2].ru_inblock;
+							block_out_ops = usage[2].ru_oublock;
+							vol_context_switch = usage[2].ru_nvcsw;
+							invol_context_switch = usage[2].ru_nivcsw;
+							
+							printf ("Profiling all children...\n");
+							printf ("  User CPU Time:                %.6fs\n", user_time);
+							printf ("  System CPU Time:              %.6fs\n", kernel_time);
+							printf ("  Max resident set size:        %ldkB\n", max_res_set_size);
+							printf ("  Page reclaims:                %ld\n", page_reclaims);
+							printf ("  Page faults:                  %ld\n", page_faults);
+							printf ("  Block input Ops:              %ld\n", block_in_ops);
+							printf ("  Block output Ops:             %ld\n", block_out_ops);
+							printf ("  Voluntary context switches:   %ld\n", vol_context_switch);
+							printf ("  Involuntary context switches: %ld\n", invol_context_switch);
+						}
+						else
+						{
+							fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
+							exit_status = 1;
+						}
 					}
 					
 					break;
@@ -780,17 +809,31 @@ void clearoflags()
 
 void catch_signal(int sig)
 {
-    fprintf (stderr, "%d caught\n", sig);
+	char catch_str[20];
+	if (sig > 0 && sig < 10)
+	{
+		catch_str[0] = (char) (sig + '0');
+		catch_str[1] = '\0';
+	}
+	else if (sig >= 10 && sig <= 64)
+	{
+		catch_str[0] = (char) ((sig / 10) + '0');
+		catch_str[1] = (char) ((sig % 10) + '0');
+		catch_str[2] = '\0';
+	}
+	strcat(catch_str, " caught\n");
+	write(2, catch_str, strlen(catch_str));
+    //fprintf (stderr, "%d caught\n", sig);		// Prof says we cannot use printf in sighandlers
     exit(sig);
 }
 
-void ignore_signal(int sig, siginfo_t *siginfo, void *context)
+void ignore_signal(int sig)
 {
+	// Do nothing (necessary to unpause when --pause is used)
+	if (sig)
+	{;}		// temp to avoid warning of unused parameter from compiler
+	
     //fprintf (stderr, "%d ignored\n", sig);
-    if (sig && siginfo)
-    {;}		// temp to avoid warning of unused parameter from compiler
-	if (!pause_flag)	// If not --pause, then assume signal is internal (--abort), then need to skip bad insn
-		((ucontext_t*)context)->uc_mcontext.gregs[REG_RIP]++;	// Increment insn pointer to skip bad insn
 }
 
 int executecmd(const char *file, int streams[], char *const argv[])
