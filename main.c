@@ -14,6 +14,12 @@
 #include <sys/time.h> 		// getrusage
 #include <sys/resource.h>	// getrusage
 
+#define PAR_START 0
+#define OPT_START 1
+#define OPT_END 2
+#define PAR_END 3
+#define CHI_SUM 4
+
 // Prototypes defined in other c files
 int openfile(const char *pathname, int flags);	// openfile.c
 // Prototypes defined in main.c
@@ -74,7 +80,7 @@ int main(int argc, char **argv)
     extern int opterr;		// Declared in getopt_long
     opterr = 0;				// Turns off automatic error message from getopt_long
 	
-	struct rusage usage[3];	// Stores data from getrusage: parent [0] -> [1], child [2]
+	struct rusage usage[5];	// Stores data from getrusage
 	double user_time;		// Holds user CPU time spent
 	double kernel_time;		// Holds kernel CPU time spent
 	long max_res_set_size;	// Maximum resident set size
@@ -378,7 +384,7 @@ int main(int argc, char **argv)
 					
 					// BEGIN profiling
 					if (profile_flag)
-						if (getrusage(RUSAGE_SELF, &usage[0]) < 0)	// Start profiling (parent)
+						if (getrusage(RUSAGE_SELF, &usage[OPT_START]) < 0)	// Start profiling (parent)
 						{
 							profile_succeed = 0;
 							fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
@@ -445,7 +451,7 @@ int main(int argc, char **argv)
 					// END profiling
 					if (profile_flag)
 					{
-						if (getrusage(RUSAGE_SELF, &usage[1]) < 0)	// Stop profiling (parent)
+						if (getrusage(RUSAGE_SELF, &usage[OPT_END]) < 0)	// Stop profiling (parent)
 						{
 							profile_succeed = 0;
 							fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
@@ -455,19 +461,19 @@ int main(int argc, char **argv)
 						if (profile_succeed)		// Only check usage if getrusage succeeded
 						{
 							// Add seconds
-							user_time = usage[1].ru_utime.tv_sec - usage[0].ru_utime.tv_sec;
-							kernel_time = usage[1].ru_stime.tv_sec - usage[0].ru_stime.tv_sec;
+							user_time = usage[OPT_END].ru_utime.tv_sec - usage[OPT_START].ru_utime.tv_sec;
+							kernel_time = usage[OPT_END].ru_stime.tv_sec - usage[OPT_START].ru_stime.tv_sec;
 							// Add microseconds
-							user_time += (usage[1].ru_utime.tv_usec - usage[0].ru_utime.tv_usec)/1000000.0;
-							kernel_time += (usage[1].ru_stime.tv_usec - usage[0].ru_stime.tv_usec)/1000000.0;
+							user_time += (usage[OPT_END].ru_utime.tv_usec - usage[OPT_START].ru_utime.tv_usec)/1000000.0;
+							kernel_time += (usage[OPT_END].ru_stime.tv_usec - usage[OPT_START].ru_stime.tv_usec)/1000000.0;
 							// Other resources
-							max_res_set_size = usage[1].ru_maxrss - usage[0].ru_maxrss;
-							page_reclaims = usage[1].ru_minflt - usage[0].ru_minflt;
-							page_faults = usage[1].ru_majflt - usage[0].ru_majflt;
-							block_in_ops = usage[1].ru_inblock - usage[0].ru_inblock;
-							block_out_ops = usage[1].ru_oublock - usage[0].ru_oublock;
-							vol_context_switch = usage[1].ru_nvcsw - usage[0].ru_nvcsw;
-							invol_context_switch = usage[1].ru_nivcsw - usage[0].ru_nivcsw;
+							max_res_set_size = usage[OPT_END].ru_maxrss - usage[OPT_START].ru_maxrss;
+							page_reclaims = usage[OPT_END].ru_minflt - usage[OPT_START].ru_minflt;
+							page_faults = usage[OPT_END].ru_majflt - usage[OPT_START].ru_majflt;
+							block_in_ops = usage[OPT_END].ru_inblock - usage[OPT_START].ru_inblock;
+							block_out_ops = usage[OPT_END].ru_oublock - usage[OPT_START].ru_oublock;
+							vol_context_switch = usage[OPT_END].ru_nvcsw - usage[OPT_START].ru_nvcsw;
+							invol_context_switch = usage[OPT_END].ru_nivcsw - usage[OPT_START].ru_nivcsw;
 							
 							printf ("Profiling command \"%s\"...\n", child[childInd-1].args);
 							printf ("  User CPU Time:                %.6fs\n", user_time);
@@ -724,22 +730,22 @@ int main(int argc, char **argv)
 					
 					if (profile_flag)
 					{
-						if (getrusage(RUSAGE_CHILDREN, &usage[2]) == 0)	// Get all children usage data
+						if (getrusage(RUSAGE_CHILDREN, &usage[CHI_SUM]) == 0)	// Get all children usage data
 						{
 							// Add seconds
-							user_time = usage[2].ru_utime.tv_sec;
-							kernel_time = usage[2].ru_stime.tv_sec;
+							user_time = usage[CHI_SUM].ru_utime.tv_sec;
+							kernel_time = usage[CHI_SUM].ru_stime.tv_sec;
 							// Add microseconds
-							user_time += usage[2].ru_utime.tv_usec/1000000.0;
-							kernel_time += usage[2].ru_stime.tv_usec/1000000.0;
+							user_time += usage[CHI_SUM].ru_utime.tv_usec/1000000.0;
+							kernel_time += usage[CHI_SUM].ru_stime.tv_usec/1000000.0;
 							// Other resources
-							max_res_set_size = usage[2].ru_maxrss;
-							page_reclaims = usage[2].ru_minflt;
-							page_faults = usage[2].ru_majflt;
-							block_in_ops = usage[2].ru_inblock;
-							block_out_ops = usage[2].ru_oublock;
-							vol_context_switch = usage[2].ru_nvcsw;
-							invol_context_switch = usage[2].ru_nivcsw;
+							max_res_set_size = usage[CHI_SUM].ru_maxrss;
+							page_reclaims = usage[CHI_SUM].ru_minflt;
+							page_faults = usage[CHI_SUM].ru_majflt;
+							block_in_ops = usage[CHI_SUM].ru_inblock;
+							block_out_ops = usage[CHI_SUM].ru_oublock;
+							vol_context_switch = usage[CHI_SUM].ru_nvcsw;
+							invol_context_switch = usage[CHI_SUM].ru_nivcsw;
 							
 							printf ("Profiling all children...\n");
 							printf ("  User CPU Time:                %.6fs\n", user_time);
