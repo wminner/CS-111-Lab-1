@@ -74,9 +74,16 @@ int main(int argc, char **argv)
     extern int opterr;		// Declared in getopt_long
     opterr = 0;				// Turns off automatic error message from getopt_long
 	
-	struct rusage usage[3];	// Stores data from getrusage
-	float user_time;		// Holds user CPU time spent
-	float kernel_time;		// Holds kernel CPU time spent
+	struct rusage usage[3];	// Stores data from getrusage: parent [0] -> [1], child [2]
+	double user_time;		// Holds user CPU time spent
+	double kernel_time;		// Holds kernel CPU time spent
+	long max_res_set_size;	// Maximum resident set size
+	long page_reclaims;		// Page reclaims (soft page faults)
+	long page_faults;		// Page faults (hard page faults)
+	long block_in_ops;		// Block input operations
+	long block_out_ops;		// Block output operations
+	long vol_context_switch;	// Voluntary context switches
+	long invol_context_switch;	// Involuntary context switches
     
     logicalfd = (int*) malloc (maxfd*sizeof(int)); // fd table. Key is logical fd. Value is real fd. 
 	child = (struct child_proc*) malloc (maxChild*sizeof(struct child_proc));  // keep track of child and the position of its arguments
@@ -444,10 +451,25 @@ int main(int argc, char **argv)
 						// Add microseconds
 						user_time += (usage[1].ru_utime.tv_usec - usage[0].ru_utime.tv_usec)/1000000.0;
 						kernel_time += (usage[1].ru_stime.tv_usec - usage[0].ru_stime.tv_usec)/1000000.0;
+						// Other resources
+						max_res_set_size = usage[1].ru_maxrss - usage[0].ru_maxrss;
+						page_reclaims = usage[1].ru_minflt - usage[0].ru_minflt;
+						page_faults = usage[1].ru_majflt - usage[0].ru_majflt;
+						block_in_ops = usage[1].ru_inblock - usage[0].ru_inblock;
+						block_out_ops = usage[1].ru_oublock - usage[0].ru_oublock;
+						vol_context_switch = usage[1].ru_nvcsw - usage[0].ru_nvcsw;
+						invol_context_switch = usage[1].ru_nivcsw - usage[0].ru_nivcsw;
 						
 						printf ("Profiling command \"%s\"...\n", child[childInd-1].args);
-						printf ("  User CPU Time:   %.6fs\n", user_time);
-						printf ("  System CPU Time: %.6fs\n", kernel_time);
+						printf ("  User CPU Time:                %.6fs\n", user_time);
+						printf ("  System CPU Time:              %.6fs\n", kernel_time);
+						printf ("  Max resident set size:        %ldkB\n", max_res_set_size);
+						printf ("  Page reclaims:                %ld\n", page_reclaims);
+						printf ("  Page faults:                  %ld\n", page_faults);
+						printf ("  Block input Ops:              %ld\n", block_in_ops);
+						printf ("  Block output Ops:             %ld\n", block_out_ops);
+						printf ("  Voluntary context switches:   %ld\n", vol_context_switch);
+						printf ("  Involuntary context switches: %ld\n", invol_context_switch);
 					}
 					
                     args_found = 0;
@@ -687,10 +709,25 @@ int main(int argc, char **argv)
 						// Add microseconds
 						user_time += usage[2].ru_utime.tv_usec/1000000.0;
 						kernel_time += usage[2].ru_stime.tv_usec/1000000.0;
+						// Other resources
+						max_res_set_size = usage[2].ru_maxrss;
+						page_reclaims = usage[2].ru_minflt;
+						page_faults = usage[2].ru_majflt;
+						block_in_ops = usage[2].ru_inblock;
+						block_out_ops = usage[2].ru_oublock;
+						vol_context_switch = usage[2].ru_nvcsw;
+						invol_context_switch = usage[2].ru_nivcsw;
 						
-						printf ("Profiling children...\n");
-						printf ("  User CPU Time:   %.6fs\n", user_time);
-						printf ("  System CPU Time: %.6fs\n", kernel_time);
+						printf ("Profiling all children...\n");
+						printf ("  User CPU Time:                %.6fs\n", user_time);
+						printf ("  System CPU Time:              %.6fs\n", kernel_time);
+						printf ("  Max resident set size:        %ldkB\n", max_res_set_size);
+						printf ("  Page reclaims:                %ld\n", page_reclaims);
+						printf ("  Page faults:                  %ld\n", page_faults);
+						printf ("  Block input Ops:              %ld\n", block_in_ops);
+						printf ("  Block output Ops:             %ld\n", block_out_ops);
+						printf ("  Voluntary context switches:   %ld\n", vol_context_switch);
+						printf ("  Involuntary context switches: %ld\n", invol_context_switch);
 					}
 					
 					break;
