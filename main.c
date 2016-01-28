@@ -11,6 +11,9 @@
 #include <sys/wait.h> // waitpid
 #include <errno.h>    // errno
 
+#include <sys/time.h> 		// getrusage
+#include <sys/resource.h>	// getrusage
+
 // Prototypes defined in other c files
 int openfile(const char *pathname, int flags);	// openfile.c
 // Prototypes defined in main.c
@@ -25,6 +28,7 @@ static int verbose_flag = 0;
 static int wait_flag = 0;		// Flag to wait for child processes or not
 static int test_flag = 0;		// Activates test mode, serializing all commands for verification testing
 static int pause_flag = 0;		// Lets --catch know whether it should increment %rip or not.  Assume pause means SIGSEGV is external.
+static int profile_flag = 0;	// Used to activate getrusage	
 
 // File Oflags
 static int append_flag = 0;
@@ -69,6 +73,10 @@ int main(int argc, char **argv)
     
     extern int opterr;		// Declared in getopt_long
     opterr = 0;				// Turns off automatic error message from getopt_long
+	
+	struct rusage usage[3];	// Stores data from getrusage
+	float user_time;		// Holds user CPU time spent
+	float kernel_time;		// Holds kernel CPU time spent
     
     logicalfd = (int*) malloc (maxfd*sizeof(int)); // fd table. Key is logical fd. Value is real fd. 
 	child = (struct child_proc*) malloc (maxChild*sizeof(struct child_proc));  // keep track of child and the position of its arguments
@@ -84,6 +92,7 @@ int main(int argc, char **argv)
         {"verbose",   no_argument, &verbose_flag,   1},
         {"brief",     no_argument, &verbose_flag,   0},
         {"test",      no_argument, &test_flag,      1},
+		{"profile",   no_argument, &profile_flag,   1},
         
         /* Oflags go to -1 so we can AND them with actual oflags */
         {"append",    no_argument, &append_flag,    -1},
@@ -127,7 +136,9 @@ int main(int argc, char **argv)
     {
         for (int i = 0; i < argc; i++)	// Pre-scan looking for "--test" and "--pause"
         {
-            if (strcmp(argv[i], "--test") == 0)	// Found "--test"
+            if (strcmp(argv[i], "--wait") == 0) // Found "--wait"
+                wait_flag = 1;
+			if (strcmp(argv[i], "--test") == 0)	// Found "--test"
                 test_flag = 1;
 			if (strcmp(argv[i], "--pause") == 0)// Found "--pause"
                 pause_flag = 1;
@@ -151,8 +162,8 @@ int main(int argc, char **argv)
                         // If not option is not --verbose or --test, then print it out
                         if (strcmp(option_name, "verbose") != 0 && strcmp(option_name, "test") != 0)
                         {
-                            printf ("--%s ", long_options[option_index].name);
-                            if (currOptInd == argc)	// If last argument, add a newline
+							printf ("--%s ", option_name);
+                            if (currOptInd == argc || strcmp(option_name, "profile") == 0)	// If last argument or --profile, add a newline
                                 printf ("\n");
                         }
                     }
@@ -361,13 +372,17 @@ int main(int argc, char **argv)
                 {
                     if (verbose_flag)
                         printf ("--command ");
-                    
+					
+					// BEGIN profiling
+					if (profile_flag)
+						getrusage(RUSAGE_SELF, &usage[0]);	// Start profiling (parent)
+					                    
                     int streams[3];		// Holds three fd streams to use with dup2
                     char *execArgv[argc - optind + 1];	// Size is conservatively set to number of arguments remaining to be parsed
                     char *delim;		// Points to null byte at end of each option/arg
                     int execArgc = 0;	// Number of args to use with --command
                     int optstart = optind;	// Copy optind as it may change
-					int childArgsSet = 0;
+					int childArgsSet = 0;	// Blocks writing of child args after written once
 					
                     // Process options while optind <= argc or encounter '--'
                     while (currOptInd <= argc)
@@ -410,9 +425,7 @@ int main(int argc, char **argv)
                         args_found = 0;
                         break;
                     }
-                    
-                    // Encode test_flag at binary position 2.  Executecmd prints will be supressed.
-    
+					
                     int exec_ret = executecmd(execArgv[0], streams, execArgv);
                     
                     if (exec_ret < 0) 	// Error occurred with executecmd
@@ -421,6 +434,22 @@ int main(int argc, char **argv)
                         if (exec_ret > exit_max)
                             exit_max = exec_ret;
                     
+					// END profiling
+					if (profile_flag)
+					{
+						getrusage(RUSAGE_SELF, &usage[1]);	// Stop profiling (parent)
+						// Add seconds
+						user_time = usage[1].ru_utime.tv_sec - usage[0].ru_utime.tv_sec;
+						kernel_time = usage[1].ru_stime.tv_sec - usage[0].ru_stime.tv_sec;
+						// Add microseconds
+						user_time += (usage[1].ru_utime.tv_usec - usage[0].ru_utime.tv_usec)/1000000.0;
+						kernel_time += (usage[1].ru_stime.tv_usec - usage[0].ru_stime.tv_usec)/1000000.0;
+						
+						printf ("Profiling command \"%s\"...\n", child[childInd-1].args);
+						printf ("  User CPU Time:   %.6fs\n", user_time);
+						printf ("  System CPU Time: %.6fs\n", kernel_time);
+					}
+					
                     args_found = 0;
                     break;
                 }
@@ -648,6 +677,22 @@ int main(int argc, char **argv)
 						else
 							exit_status = 1;
 					}
+					
+					if (profile_flag)
+					{
+						getrusage(RUSAGE_CHILDREN, &usage[2]);	// Get all children usage data
+						// Add seconds
+						user_time = usage[2].ru_utime.tv_sec;
+						kernel_time = usage[2].ru_stime.tv_sec;
+						// Add microseconds
+						user_time += usage[2].ru_utime.tv_usec/1000000.0;
+						kernel_time += usage[2].ru_stime.tv_usec/1000000.0;
+						
+						printf ("Profiling children...\n");
+						printf ("  User CPU Time:   %.6fs\n", user_time);
+						printf ("  System CPU Time: %.6fs\n", kernel_time);
+					}
+					
 					break;
 				}
                 case '?':
