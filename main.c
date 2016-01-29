@@ -19,6 +19,7 @@
 #define OPT_END 2
 #define PAR_END 3
 #define CHI_SUM 4
+#define PIPEFLAGS 0
 
 // Prototypes defined in other c files
 int openfile(const char *pathname, int flags);	// openfile.c
@@ -49,6 +50,7 @@ static int nonblock_flag = 0;
 static int rsync_flag = 0;
 static int sync_flag = 0;
 static int trunc_flag = 0;
+static int direct_flag = 0;
 
 // File Descriptor Tables
 static int maxfd = 20;		// Capacity of logicalfd table
@@ -107,6 +109,7 @@ int main(int argc, char **argv)
         {"rsync",     no_argument, &rsync_flag,     -1},
         {"sync",      no_argument, &sync_flag,      -1},
         {"trunc",     no_argument, &trunc_flag,     -1},
+		{"direct",    no_argument, &direct_flag,    -1},
         
         /* Non flag setting options */
         {"rdonly",  required_argument, 0, 'r' },
@@ -572,7 +575,11 @@ int main(int argc, char **argv)
                     
                     // filedescriptors for pipe
                     int pipefds[2];
-                    int error = pipe(pipefds);
+                    //int error = pipe(pipefds);
+					
+					flags = findoflags(PIPEFLAGS);
+					int error = pipe2(pipefds, flags);
+					clearoflags();	// Clear oflag
 
                     if ((fdInd + 1) >= maxfd)	// If not enough space in fd table...
                     {
@@ -941,14 +948,19 @@ int main(int argc, char **argv)
         exit(exit_status);
 }
 
-int findoflags(int open_flag)
+int findoflags(int open_flag)	// open_flag will be 0 to signify pipe
 {
-    int total = (append_flag & O_APPEND)     | (cloexec_flag & O_CLOEXEC)     |
+	int total;
+    if (open_flag != 0)	// if not for pipe
+		total = (append_flag & O_APPEND)     | (cloexec_flag & O_CLOEXEC)     |
 				(creat_flag & O_CREAT)       | (directory_flag & O_DIRECTORY) |
 				(dsync_flag & O_DSYNC)       | (excl_flag & O_EXCL)           |
 				(nofollow_flag & O_NOFOLLOW) | (nonblock_flag & O_NONBLOCK)   |
 				(rsync_flag & O_RSYNC)       | (sync_flag & O_SYNC)           |
 				(trunc_flag & O_TRUNC)       | (open_flag);
+	else	// if for pipe
+		total = (cloexec_flag & O_CLOEXEC)   | (direct_flag & O_DIRECT) | 
+				(nonblock_flag & O_NONBLOCK);
     
     return total;
 }
@@ -966,6 +978,7 @@ void clearoflags()
     rsync_flag = 0;
     sync_flag = 0;
     trunc_flag = 0;
+    direct_flag = 0;
 }
 
 void catch_signal(int sig)

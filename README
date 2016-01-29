@@ -45,16 +45,10 @@ simpsh functionality:
 	--rsync
 	--sync
 	--trunc
-* Verifies that the appropriate number of arguments are given
-	--rdonly (1)
-	--wronly (1)
-	--rdwr (1)
-	--close (1)
-	--command (>= 4)
-	--catch (1)
-	--default (1)
-	--ignore (1)
-* Can accept short arguments for commands (ex: "ls -l")
+* Flags are supported by pipes (as seen in pipe2 man page)
+	--cloexec
+	--nonblock
+	--direct
 * Profile gets resource data for the following options:
 	--rdonly
 	--wronly
@@ -67,16 +61,16 @@ simpsh functionality:
 	--catch
 	--default
 	--ignore
-* Profile does not get resource data for...
-	--verbose 
-	--brief
-	--test
-	--pause
-	  All oflag options
-  The oflag options set a single int flag (which would not be meaningful to 
-  profile).  The test option is only used for verification testing.  The pause
-  option could not be profiled because it stops simpsh until the user restarts
-  it, and the resources collected from it would not be meaningful.
+* Can accept short arguments for commands (ex: "ls -l")
+* Verifies that the appropriate number of arguments are given
+	--rdonly (1)
+	--wronly (1)
+	--rdwr (1)
+	--close (1)
+	--command (>= 4)
+	--catch (1)
+	--default (1)
+	--ignore (1)
 
 	
 Lab 1a TODO:
@@ -91,12 +85,11 @@ Lab 1c TODO:
 * --profile verification testing and comparison w/ expected values
 * create 3 test cases for simpsh
 * translate test cases to bash
-* translate test cases to execline (not yet installed)
+* translate test cases to execline (/usr/local/cs/execline-2.1.4.5/bin)
 * perform test cases on all shells and compare results in document
 
 
 Lab 1b Design Problem TODO:
-* Allow flags to apply to pipes using pipe2
 * Extend shell to wait for individual sub commands, instead of waiting for all to finish (--test)
 	--wait N:  waits for nth --command and outputs command name and options
 * Detect and prevent pipe cycles
@@ -109,6 +102,16 @@ Notes:
 * In order to test pipes with --wait, it is necessary to use --close on the
   write ends of all pipes right before the --wait occurs.  Otherwise simpsh
   will hang, which is the expected behavior.
+* Profile does not get resource data for...
+	--verbose 
+	--brief
+	--test
+	--pause
+	  All oflag options
+  The oflag options set a single int flag (which would not be meaningful to 
+  profile).  The test option is only used for verification testing.  The pause
+  option could not be profiled because it stops simpsh until the user restarts
+  it, and the resources collected from it would not be meaningful.
   
   
 Known Issues:
