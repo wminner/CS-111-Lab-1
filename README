@@ -24,8 +24,8 @@ simpsh functionality:
 	--close
 	--command
 	--verbose
-	--brief (cancel verbose on rest of commands)	
-	--wait
+	--brief (cancel verbose on rest of commands)
+	--wait 
 	--test (used to serialize all commands for verification testing)
 	--pause
 	--abort
@@ -55,6 +55,28 @@ simpsh functionality:
 	--default (1)
 	--ignore (1)
 * Can accept short arguments for commands (ex: "ls -l")
+* Profile gets resource data for the following options:
+	--rdonly
+	--wronly
+	--rdwr
+	--pipe
+	--close
+	--command
+	--wait (sum of all children resource usage)
+	--abort
+	--catch
+	--default
+	--ignore
+* Profile does not get resource data for...
+	--verbose 
+	--brief
+	--test
+	--pause
+	  All oflag options
+  The oflag options set a single int flag (which would not be meaningful to 
+  profile).  The test option is only used for verification testing.  The pause
+  option could not be profiled because it stops simpsh until the user restarts
+  it, and the resources collected from it would not be meaningful.
 
 	
 Lab 1a TODO:

@@ -28,6 +28,7 @@ void clearoflags();
 void catch_signal(int sig);
 void ignore_signal(int sig);
 int executecmd(const char *file, int streams[], char *const argv[]);
+void profile_print(int start, int end, struct rusage *usage, char *optname);
 
 // General Option Flags
 static int verbose_flag = 0;
@@ -81,15 +82,6 @@ int main(int argc, char **argv)
     opterr = 0;				// Turns off automatic error message from getopt_long
 	
 	struct rusage usage[5];	// Stores data from getrusage
-	double user_time;		// Holds user CPU time spent
-	double kernel_time;		// Holds kernel CPU time spent
-	long max_res_set_size;	// Maximum resident set size
-	long page_reclaims;		// Page reclaims (soft page faults)
-	long page_faults;		// Page faults (hard page faults)
-	long block_in_ops;		// Block input operations
-	long block_out_ops;		// Block output operations
-	long vol_context_switch;	// Voluntary context switches
-	long invol_context_switch;	// Involuntary context switches
 	int profile_succeed = 1;	// Becomes 0 if getrusage fails parent profiling
     
     logicalfd = (int*) malloc (maxfd*sizeof(int)); // fd table. Key is logical fd. Value is real fd. 
@@ -178,9 +170,20 @@ int main(int argc, char **argv)
                     }
                     break;
                 case 'r':	// rdonly
-                    if (verbose_flag)
-                        printf ("--rdonly ");
-                    
+                    // BEGIN profiling
+					if (profile_flag)
+					{
+						if (getrusage(RUSAGE_SELF, &usage[OPT_START]) < 0)	// Start profiling (parent)
+						{
+							profile_succeed = 0;
+							fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
+							exit_status = 1;
+						}	
+					}	
+					
+					if (verbose_flag)
+                        printf ("--rdonly ");				
+					
                     // Process options while optind <= argc or encounter '--'
                     while (currOptInd <= argc)
                     {
@@ -221,17 +224,39 @@ int main(int argc, char **argv)
                     flags = findoflags(O_RDONLY);
                     
                     logicalfd[fdInd] = openfile(optarg, flags);	// Open file with appropriate flags
-                    
                     if (logicalfd[fdInd] < 0)	// If something went wrong with open file operation...
                         exit_status = 1;
+						
                     clearoflags();	// Clear oflag
-                    
                     fdInd++;
-                    
                     args_found = 0;		// Reset args found for next option
+					
+					// END profiling
+					if (profile_flag)
+					{
+						if (getrusage(RUSAGE_SELF, &usage[OPT_END]) < 0)	// Stop profiling (parent)
+						{
+							profile_succeed = 0;
+							fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
+							exit_status = 1;
+						}
+						if (profile_succeed)		// Only print usage if getrusage succeeded
+							profile_print(OPT_START, OPT_END, usage, "rdonly");
+					}
                     break;
                 case 'w':	// wronly
-                    if (verbose_flag)
+                    // BEGIN profiling
+					if (profile_flag)
+					{
+						if (getrusage(RUSAGE_SELF, &usage[OPT_START]) < 0)	// Start profiling (parent)
+						{
+							profile_succeed = 0;
+							fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
+							exit_status = 1;
+						}	
+					}	
+					
+					if (verbose_flag)
                         printf ("--wronly ");
                     
                     // Process options while optind <= argc or encounter '--'
@@ -276,14 +301,37 @@ int main(int argc, char **argv)
                     logicalfd[fdInd] = openfile(optarg, flags);	// Open file with appropriate flags
                     if (logicalfd[fdInd] < 0)	// If something went wrong with open file operation...
                         exit_status = 1;
+						
                     clearoflags();	// Clear oflag
-                    
                     fdInd++;
-                    
                     args_found = 0;		// Reset args found for next option
+					
+					// END profiling
+					if (profile_flag)
+					{
+						if (getrusage(RUSAGE_SELF, &usage[OPT_END]) < 0)	// Stop profiling (parent)
+						{
+							profile_succeed = 0;
+							fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
+							exit_status = 1;
+						}
+						if (profile_succeed)		// Only print usage if getrusage succeeded
+							profile_print(OPT_START, OPT_END, usage, "wronly");
+					}
                     break;
                 case 'b': 	// read and write (both)
-                    if (verbose_flag)
+                    // BEGIN profiling
+					if (profile_flag)
+					{
+						if (getrusage(RUSAGE_SELF, &usage[OPT_START]) < 0)	// Start profiling (parent)
+						{
+							profile_succeed = 0;
+							fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
+							exit_status = 1;
+						}	
+					}	
+					
+					if (verbose_flag)
                         printf ("--rdwr ");
                     
                     // Process options while optind <= argc or encounter '--'
@@ -328,13 +376,36 @@ int main(int argc, char **argv)
                     logicalfd[fdInd] = openfile(optarg, flags);	// Open file with appropriate flags
                     if (logicalfd[fdInd] < 0)	// If something went wrong with open file operation...
                         exit_status = 1;
+						
                     clearoflags();	// Clear oflag
-                    
                     fdInd++;
-                    
                     args_found = 0;		// Reset args found for next option
+					
+					// END profiling
+					if (profile_flag)
+					{
+						if (getrusage(RUSAGE_SELF, &usage[OPT_END]) < 0)	// Stop profiling (parent)
+						{
+							profile_succeed = 0;
+							fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
+							exit_status = 1;
+						}
+						if (profile_succeed)		// Only print usage if getrusage succeeded
+							profile_print(OPT_START, OPT_END, usage, "rdwr");
+					}
                     break;
                 case 'x':   // close
+					// BEGIN profiling
+					if (profile_flag)
+					{
+						if (getrusage(RUSAGE_SELF, &usage[OPT_START]) < 0)	// Start profiling (parent)
+						{
+							profile_succeed = 0;
+							fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
+							exit_status = 1;
+						}	
+					}	
+				
                     if (verbose_flag)
                         printf ("--close ");
 										
@@ -376,20 +447,35 @@ int main(int argc, char **argv)
 						fprintf (stderr, "Error: file descriptor %d to close is not open or not valid.\n", fd_to_close);
 					
 					args_found = 0;		// Reset args found for next option
-                    break;
-                case 'c':	// command
-                {
-                    if (verbose_flag)
-                        printf ("--command ");
 					
-					// BEGIN profiling
+					// END profiling
 					if (profile_flag)
-						if (getrusage(RUSAGE_SELF, &usage[OPT_START]) < 0)	// Start profiling (parent)
+					{
+						if (getrusage(RUSAGE_SELF, &usage[OPT_END]) < 0)	// Stop profiling (parent)
 						{
 							profile_succeed = 0;
 							fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
 							exit_status = 1;
 						}
+						if (profile_succeed)		// Only print usage if getrusage succeeded
+							profile_print(OPT_START, OPT_END, usage, "close");
+					}
+                    break;
+                case 'c':	// command
+                {
+                    // BEGIN profiling
+					if (profile_flag)
+					{
+						if (getrusage(RUSAGE_SELF, &usage[OPT_START]) < 0)	// Start profiling (parent)
+						{
+							profile_succeed = 0;
+							fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
+							exit_status = 1;
+						}	
+					}
+						
+					if (verbose_flag)
+                        printf ("--command ");
 					                    
                     int streams[3];		// Holds three fd streams to use with dup2
                     char *execArgv[argc - optind + 1];	// Size is conservatively set to number of arguments remaining to be parsed
@@ -447,7 +533,9 @@ int main(int argc, char **argv)
                     else				// Find max exit status among processes
                         if (exec_ret > exit_max)
                             exit_max = exec_ret;
-                    
+					
+					args_found = 0;		// Reset args found for next option
+					
 					// END profiling
 					if (profile_flag)
 					{
@@ -457,38 +545,9 @@ int main(int argc, char **argv)
 							fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
 							exit_status = 1;
 						}
-						
-						if (profile_succeed)		// Only check usage if getrusage succeeded
-						{
-							// Add seconds
-							user_time = usage[OPT_END].ru_utime.tv_sec - usage[OPT_START].ru_utime.tv_sec;
-							kernel_time = usage[OPT_END].ru_stime.tv_sec - usage[OPT_START].ru_stime.tv_sec;
-							// Add microseconds
-							user_time += (usage[OPT_END].ru_utime.tv_usec - usage[OPT_START].ru_utime.tv_usec)/1000000.0;
-							kernel_time += (usage[OPT_END].ru_stime.tv_usec - usage[OPT_START].ru_stime.tv_usec)/1000000.0;
-							// Other resources
-							max_res_set_size = usage[OPT_END].ru_maxrss - usage[OPT_START].ru_maxrss;
-							page_reclaims = usage[OPT_END].ru_minflt - usage[OPT_START].ru_minflt;
-							page_faults = usage[OPT_END].ru_majflt - usage[OPT_START].ru_majflt;
-							block_in_ops = usage[OPT_END].ru_inblock - usage[OPT_START].ru_inblock;
-							block_out_ops = usage[OPT_END].ru_oublock - usage[OPT_START].ru_oublock;
-							vol_context_switch = usage[OPT_END].ru_nvcsw - usage[OPT_START].ru_nvcsw;
-							invol_context_switch = usage[OPT_END].ru_nivcsw - usage[OPT_START].ru_nivcsw;
-							
-							printf ("Profiling command \"%s\"...\n", child[childInd-1].args);
-							printf ("  User CPU Time:                %.6fs\n", user_time);
-							printf ("  System CPU Time:              %.6fs\n", kernel_time);
-							printf ("  Max resident set size:        %ldkB\n", max_res_set_size);
-							printf ("  Page reclaims:                %ld\n", page_reclaims);
-							printf ("  Page faults:                  %ld\n", page_faults);
-							printf ("  Block input Ops:              %ld\n", block_in_ops);
-							printf ("  Block output Ops:             %ld\n", block_out_ops);
-							printf ("  Voluntary context switches:   %ld\n", vol_context_switch);
-							printf ("  Involuntary context switches: %ld\n", invol_context_switch);
-						}
+						if (profile_succeed)		// Only print usage if getrusage succeeded
+							profile_print(OPT_START, OPT_END, usage, child[childInd-1].args);
 					}
-					
-                    args_found = 0;
                     break;
                 }
                 case 'p':	// pause
@@ -497,7 +556,18 @@ int main(int argc, char **argv)
                     
                 case 'z': // pipe
                 {
-                    if(verbose_flag)
+                    // BEGIN profiling
+					if (profile_flag)
+					{
+						if (getrusage(RUSAGE_SELF, &usage[OPT_START]) < 0)	// Start profiling (parent)
+						{
+							profile_succeed = 0;
+							fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
+							exit_status = 1;
+						}	
+					}
+						
+					if(verbose_flag)
                         printf("--pipe\n");
                     
                     // filedescriptors for pipe
@@ -525,19 +595,69 @@ int main(int argc, char **argv)
                     logicalfd[++fdInd] = pipefds[1];
                     fdInd++;
 
+					// END profiling
+					if (profile_flag)
+					{
+						if (getrusage(RUSAGE_SELF, &usage[OPT_END]) < 0)	// Stop profiling (parent)
+						{
+							profile_succeed = 0;
+							fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
+							exit_status = 1;
+						}
+						if (profile_succeed)		// Only print usage if getrusage succeeded
+							profile_print(OPT_START, OPT_END, usage, "pipe");
+					}
                     break;
                 }
                 case 'a':	// abort
                 {
-                    if (raise(SIGSEGV) != 0)	// Cause segmentation fault
+                    // BEGIN profiling
+					if (profile_flag)
+					{
+						if (getrusage(RUSAGE_SELF, &usage[OPT_START]) < 0)	// Start profiling (parent)
+						{
+							profile_succeed = 0;
+							fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
+							exit_status = 1;
+						}	
+					}
+					
+					if (verbose_flag)
+						printf("--abort\n");
+					
+					if (raise(SIGSEGV) != 0)	// Cause segmentation fault
 					{
 						fprintf (stderr, "Error: unable to abort\n");
 						exit_status = 1;
 					}
+					
+					// END profiling
+					if (profile_flag)
+					{
+						if (getrusage(RUSAGE_SELF, &usage[OPT_END]) < 0)	// Stop profiling (parent)
+						{
+							profile_succeed = 0;
+							fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
+							exit_status = 1;
+						}
+						if (profile_succeed)		// Only print usage if getrusage succeeded
+							profile_print(OPT_START, OPT_END, usage, "abort");
+					}
                     break;
                 }
                 case 's':	// catch (signal)
-                    if (verbose_flag)
+                    // BEGIN profiling
+					if (profile_flag)
+					{
+						if (getrusage(RUSAGE_SELF, &usage[OPT_START]) < 0)	// Start profiling (parent)
+						{
+							profile_succeed = 0;
+							fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
+							exit_status = 1;
+						}	
+					}
+					
+					if (verbose_flag)
                         printf ("--catch ");
                     
                     // Process options while optind <= argc or encounter '--' 
@@ -583,9 +703,33 @@ int main(int argc, char **argv)
 					}
                     
                     args_found = 0;		// Reset args found for next option
+					
+					// END profiling
+					if (profile_flag)
+					{
+						if (getrusage(RUSAGE_SELF, &usage[OPT_END]) < 0)	// Stop profiling (parent)
+						{
+							profile_succeed = 0;
+							fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
+							exit_status = 1;
+						}
+						if (profile_succeed)		// Only print usage if getrusage succeeded
+							profile_print(OPT_START, OPT_END, usage, "catch");
+					}
                     break;
                 case 'i':	// ignore (signal)
-                    if (verbose_flag)
+					// BEGIN profiling
+					if (profile_flag)
+					{
+						if (getrusage(RUSAGE_SELF, &usage[OPT_START]) < 0)	// Start profiling (parent)
+						{
+							profile_succeed = 0;
+							fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
+							exit_status = 1;
+						}	
+					}
+					
+					if (verbose_flag)
                         printf ("--ignore ");
                     
                     // Process options while optind <= argc or encounter '--' 
@@ -632,9 +776,33 @@ int main(int argc, char **argv)
 					}
                     
                     args_found = 0;		// Reset args found for next option
+					
+					// END profiling
+					if (profile_flag)
+					{
+						if (getrusage(RUSAGE_SELF, &usage[OPT_END]) < 0)	// Stop profiling (parent)
+						{
+							profile_succeed = 0;
+							fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
+							exit_status = 1;
+						}
+						if (profile_succeed)		// Only print usage if getrusage succeeded
+							profile_print(OPT_START, OPT_END, usage, "ignore");
+					}
                     break;
                 case 'd':	// default (signal)
-                    if (verbose_flag)
+                    // BEGIN profiling
+					if (profile_flag)
+					{
+						if (getrusage(RUSAGE_SELF, &usage[OPT_START]) < 0)	// Start profiling (parent)
+						{
+							profile_succeed = 0;
+							fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
+							exit_status = 1;
+						}	
+					}
+					
+					if (verbose_flag)
                         printf ("--default ");
                     
                     // Process options while optind <= argc or encounter '--' 
@@ -680,6 +848,19 @@ int main(int argc, char **argv)
 					}
                     
                     args_found = 0;		// Reset args found for next option
+					
+					// END profiling
+					if (profile_flag)
+					{
+						if (getrusage(RUSAGE_SELF, &usage[OPT_END]) < 0)	// Stop profiling (parent)
+						{
+							profile_succeed = 0;
+							fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
+							exit_status = 1;
+						}
+						if (profile_succeed)		// Only print usage if getrusage succeeded
+							profile_print(OPT_START, OPT_END, usage, "default");
+					}
                     break;
 				case 't': 	// wait
 				{
@@ -731,33 +912,7 @@ int main(int argc, char **argv)
 					if (profile_flag)
 					{
 						if (getrusage(RUSAGE_CHILDREN, &usage[CHI_SUM]) == 0)	// Get all children usage data
-						{
-							// Add seconds
-							user_time = usage[CHI_SUM].ru_utime.tv_sec;
-							kernel_time = usage[CHI_SUM].ru_stime.tv_sec;
-							// Add microseconds
-							user_time += usage[CHI_SUM].ru_utime.tv_usec/1000000.0;
-							kernel_time += usage[CHI_SUM].ru_stime.tv_usec/1000000.0;
-							// Other resources
-							max_res_set_size = usage[CHI_SUM].ru_maxrss;
-							page_reclaims = usage[CHI_SUM].ru_minflt;
-							page_faults = usage[CHI_SUM].ru_majflt;
-							block_in_ops = usage[CHI_SUM].ru_inblock;
-							block_out_ops = usage[CHI_SUM].ru_oublock;
-							vol_context_switch = usage[CHI_SUM].ru_nvcsw;
-							invol_context_switch = usage[CHI_SUM].ru_nivcsw;
-							
-							printf ("Profiling all children...\n");
-							printf ("  User CPU Time:                %.6fs\n", user_time);
-							printf ("  System CPU Time:              %.6fs\n", kernel_time);
-							printf ("  Max resident set size:        %ldkB\n", max_res_set_size);
-							printf ("  Page reclaims:                %ld\n", page_reclaims);
-							printf ("  Page faults:                  %ld\n", page_faults);
-							printf ("  Block input Ops:              %ld\n", block_in_ops);
-							printf ("  Block output Ops:             %ld\n", block_out_ops);
-							printf ("  Voluntary context switches:   %ld\n", vol_context_switch);
-							printf ("  Involuntary context switches: %ld\n", invol_context_switch);
-						}
+							profile_print(-1, CHI_SUM, usage, "all children");
 						else
 						{
 							fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
@@ -914,4 +1069,63 @@ int executecmd(const char *file, int streams[], char *const argv[])
             return 0;
     }
     return -1;  // Should never get here
+}
+
+void profile_print(int start, int end, struct rusage *usage, char *optname)
+{
+	double user_time;		// Holds user CPU time spent
+	double kernel_time;		// Holds kernel CPU time spent
+	long max_res_set_size;	// Maximum resident set size
+	long page_reclaims;		// Page reclaims (soft page faults)
+	long page_faults;		// Page faults (hard page faults)
+	long block_in_ops;		// Block input operations
+	long block_out_ops;		// Block output operations
+	long vol_context_switch;	// Voluntary context switches
+	long invol_context_switch;	// Involuntary context switches
+
+	if (start != -1)	// Parent usage
+	{
+		// Add seconds
+		user_time = usage[end].ru_utime.tv_sec - usage[start].ru_utime.tv_sec;
+		kernel_time = usage[end].ru_stime.tv_sec - usage[start].ru_stime.tv_sec;
+		// Add microseconds
+		user_time += (usage[end].ru_utime.tv_usec - usage[start].ru_utime.tv_usec)/1000000.0;
+		kernel_time += (usage[end].ru_stime.tv_usec - usage[start].ru_stime.tv_usec)/1000000.0;
+		// Other resources
+		max_res_set_size = usage[end].ru_maxrss - usage[start].ru_maxrss;
+		page_reclaims = usage[end].ru_minflt - usage[start].ru_minflt;
+		page_faults = usage[end].ru_majflt - usage[start].ru_majflt;
+		block_in_ops = usage[end].ru_inblock - usage[start].ru_inblock;
+		block_out_ops = usage[end].ru_oublock - usage[start].ru_oublock;
+		vol_context_switch = usage[end].ru_nvcsw - usage[start].ru_nvcsw;
+		invol_context_switch = usage[end].ru_nivcsw - usage[start].ru_nivcsw;
+	} 
+	else	// Children usage
+	{
+		// Add seconds
+		user_time = usage[CHI_SUM].ru_utime.tv_sec;
+		kernel_time = usage[CHI_SUM].ru_stime.tv_sec;
+		// Add microseconds
+		user_time += usage[CHI_SUM].ru_utime.tv_usec/1000000.0;
+		kernel_time += usage[CHI_SUM].ru_stime.tv_usec/1000000.0;
+		// Other resources
+		max_res_set_size = usage[CHI_SUM].ru_maxrss;
+		page_reclaims = usage[CHI_SUM].ru_minflt;
+		page_faults = usage[CHI_SUM].ru_majflt;
+		block_in_ops = usage[CHI_SUM].ru_inblock;
+		block_out_ops = usage[CHI_SUM].ru_oublock;
+		vol_context_switch = usage[CHI_SUM].ru_nvcsw;
+		invol_context_switch = usage[CHI_SUM].ru_nivcsw;
+	}
+	
+	printf ("Profiling %s...\n", optname);
+	printf ("  User CPU Time:                %.6fs\n", user_time);
+	printf ("  System CPU Time:              %.6fs\n", kernel_time);
+	printf ("  Max resident set size:        %ldkB\n", max_res_set_size);
+	printf ("  Page reclaims:                %ld\n", page_reclaims);
+	printf ("  Page faults:                  %ld\n", page_faults);
+	printf ("  Block input Ops:              %ld\n", block_in_ops);
+	printf ("  Block output Ops:             %ld\n", block_out_ops);
+	printf ("  Voluntary context switches:   %ld\n", vol_context_switch);
+	printf ("  Involuntary context switches: %ld\n", invol_context_switch);
 }
