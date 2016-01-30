@@ -14,11 +14,10 @@
 #include <sys/time.h> 		// getrusage
 #include <sys/resource.h>	// getrusage
 
-#define PAR_START 0
-#define OPT_START 1
-#define OPT_END 2
-#define PAR_END 3
-#define CHI_SUM 4
+#define OPT_START 0
+#define OPT_END 1
+#define CHI_SUM 2
+#define PAR_SUM 3
 #define PIPEFLAGS 0
 
 // Prototypes defined in other c files
@@ -35,7 +34,6 @@ void profile_print(int start, int end, struct rusage *usage, char *optname);
 static int verbose_flag = 0;
 static int wait_flag = 0;		// Flag to wait for child processes or not
 static int test_flag = 0;		// Activates test mode, serializing all commands for verification testing
-static int pause_flag = 0;		// Lets --catch know whether it should increment %rip or not.  Assume pause means SIGSEGV is external.
 static int profile_flag = 0;	// Used to activate getrusage	
 
 // File Oflags
@@ -65,6 +63,9 @@ struct child_proc {			// Structure used to pair pid with arguments
 	char *args;
 } *child;
 
+// Profiling variables
+static struct rusage usage[4];	// Stores data from getrusage
+
 int main(int argc, char **argv)
 {
     int ret; 				// What getopt_long returns
@@ -83,8 +84,7 @@ int main(int argc, char **argv)
     extern int opterr;		// Declared in getopt_long
     opterr = 0;				// Turns off automatic error message from getopt_long
 	
-	struct rusage usage[5];	// Stores data from getrusage
-	int profile_succeed = 1;	// Becomes 0 if getrusage fails parent profiling
+	int profile_succeed = 1;// Becomes 0 if getrusage fails parent profiling
     
     logicalfd = (int*) malloc (maxfd*sizeof(int)); // fd table. Key is logical fd. Value is real fd. 
 	child = (struct child_proc*) malloc (maxChild*sizeof(struct child_proc));  // keep track of child and the position of its arguments
@@ -138,14 +138,12 @@ int main(int argc, char **argv)
     }
     else if (argc > 1) // At least one argument
     {
-        for (int i = 0; i < argc; i++)	// Pre-scan looking for "--test" and "--pause"
+        for (int i = 0; i < argc; i++)	// Pre-scan looking for "--wait" and "--test"
         {
             if (strcmp(argv[i], "--wait") == 0) // Found "--wait"
                 wait_flag = 1;
 			if (strcmp(argv[i], "--test") == 0)	// Found "--test"
                 test_flag = 1;
-			if (strcmp(argv[i], "--pause") == 0)// Found "--pause"
-                pause_flag = 1;
         }
         
         while (1) 	// Loop until getop_long doesn't find anything (then break)
@@ -919,14 +917,16 @@ int main(int argc, char **argv)
 					if (profile_flag)
 					{
 						if (getrusage(RUSAGE_CHILDREN, &usage[CHI_SUM]) == 0)	// Get all children usage data
-							profile_print(-1, CHI_SUM, usage, "all children");
+						{
+							// Print data for children sum
+							profile_print(-1, CHI_SUM, usage, "total CHILD usage");
+						}
 						else
 						{
 							fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
 							exit_status = 1;
 						}
 					}
-					
 					break;
 				}
                 case '?':
@@ -939,6 +939,9 @@ int main(int argc, char **argv)
             }
         }
     }
+	if (profile_flag)
+		profile_print(-1, PAR_SUM, usage, "total PARENT usage");	// Print data for parent sum
+	
     free (logicalfd);
 	free (child);
 	
@@ -1112,23 +1115,36 @@ void profile_print(int start, int end, struct rusage *usage, char *optname)
 		block_out_ops = usage[end].ru_oublock - usage[start].ru_oublock;
 		vol_context_switch = usage[end].ru_nvcsw - usage[start].ru_nvcsw;
 		invol_context_switch = usage[end].ru_nivcsw - usage[start].ru_nivcsw;
+		
+		// Keep track of total parent usage
+		usage[PAR_SUM].ru_utime.tv_sec += usage[end].ru_utime.tv_sec - usage[start].ru_utime.tv_sec;
+		usage[PAR_SUM].ru_stime.tv_sec += usage[end].ru_stime.tv_sec - usage[start].ru_stime.tv_sec;
+		usage[PAR_SUM].ru_utime.tv_usec += usage[end].ru_utime.tv_usec - usage[start].ru_utime.tv_usec;
+		usage[PAR_SUM].ru_stime.tv_usec += usage[end].ru_stime.tv_usec - usage[start].ru_stime.tv_usec;
+		usage[PAR_SUM].ru_maxrss += max_res_set_size;
+		usage[PAR_SUM].ru_minflt += page_reclaims;
+		usage[PAR_SUM].ru_majflt += page_faults;
+		usage[PAR_SUM].ru_inblock += block_in_ops;
+		usage[PAR_SUM].ru_oublock += block_out_ops;
+		usage[PAR_SUM].ru_nvcsw += vol_context_switch;
+		usage[PAR_SUM].ru_nivcsw += invol_context_switch;
 	} 
-	else	// Children usage
+	else	// Children or Parent summed usage
 	{
 		// Add seconds
-		user_time = usage[CHI_SUM].ru_utime.tv_sec;
-		kernel_time = usage[CHI_SUM].ru_stime.tv_sec;
+		user_time = usage[end].ru_utime.tv_sec;
+		kernel_time = usage[end].ru_stime.tv_sec;
 		// Add microseconds
-		user_time += usage[CHI_SUM].ru_utime.tv_usec/1000000.0;
-		kernel_time += usage[CHI_SUM].ru_stime.tv_usec/1000000.0;
+		user_time += usage[end].ru_utime.tv_usec/1000000.0;
+		kernel_time += usage[end].ru_stime.tv_usec/1000000.0;
 		// Other resources
-		max_res_set_size = usage[CHI_SUM].ru_maxrss;
-		page_reclaims = usage[CHI_SUM].ru_minflt;
-		page_faults = usage[CHI_SUM].ru_majflt;
-		block_in_ops = usage[CHI_SUM].ru_inblock;
-		block_out_ops = usage[CHI_SUM].ru_oublock;
-		vol_context_switch = usage[CHI_SUM].ru_nvcsw;
-		invol_context_switch = usage[CHI_SUM].ru_nivcsw;
+		max_res_set_size = usage[end].ru_maxrss;
+		page_reclaims = usage[end].ru_minflt;
+		page_faults = usage[end].ru_majflt;
+		block_in_ops = usage[end].ru_inblock;
+		block_out_ops = usage[end].ru_oublock;
+		vol_context_switch = usage[end].ru_nvcsw;
+		invol_context_switch = usage[end].ru_nivcsw;
 	}
 	
 	printf ("Profiling %s...\n", optname);

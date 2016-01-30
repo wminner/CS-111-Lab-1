@@ -56,12 +56,13 @@ simpsh functionality:
 	--pipe
 	--close
 	--command
-	--wait (sum of all children resource usage)
+	--wait
 	--abort
 	--catch
 	--default
 	--ignore
-* Can accept short arguments for commands (ex: "ls -l")
+* Profile reports the sum of all child resource usage when the --wait option is used
+* Profile always reports the sum of all parent resource usage
 * Verifies that the appropriate number of arguments are given
 	--rdonly (1)
 	--wronly (1)
@@ -92,7 +93,6 @@ Lab 1c TODO:
 Lab 1b Design Problem TODO:
 * Extend shell to wait for individual sub commands, instead of waiting for all to finish (--test)
 	--wait N:  waits for nth --command and outputs command name and options
-* Detect and prevent pipe cycles
 
   
 Notes:
@@ -108,7 +108,7 @@ Notes:
 	--test
 	--pause
 	  All oflag options
-  The oflag options set a single int flag (which would not be meaningful to 
+  The oflag options set a single integer flag (which would not be meaningful to 
   profile).  The test option is only used for verification testing.  The pause
   option could not be profiled because it stops simpsh until the user restarts
   it, and the resources collected from it would not be meaningful.
