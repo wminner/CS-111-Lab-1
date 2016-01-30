@@ -29,3 +29,5 @@ check: test.sh
 
 clean:
 	rm -rf *~ *.o *.tar.gz simpsh $(DIR) a b c d *.tmp
+time:
+	./time.sh
