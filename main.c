@@ -18,6 +18,8 @@
 #define OPT_END 1
 #define CHI_SUM 2
 #define PAR_SUM 3
+#define MAIN_START 4
+#define MAIN_END 5
 #define PIPEFLAGS 0
 
 // Prototypes defined in other c files
@@ -64,11 +66,25 @@ struct child_proc {			// Structure used to pair pid with arguments
 } *child;
 
 // Profiling variables
-static struct rusage usage[4];	// Stores data from getrusage
+static struct rusage usage[6];	// Stores data from getrusage
 
 int main(int argc, char **argv)
 {
-    int ret; 				// What getopt_long returns
+    int profile_succeed = 1;// Becomes 0 if getrusage fails parent profiling
+	int exit_status = 0;	// Keeps track of how the program should exit
+	
+	// BEGIN profiling
+	if (1)	// Forced profile because we don't know profile_flag at this point
+	{
+		if (getrusage(RUSAGE_SELF, &usage[MAIN_START]) < 0)	// Start profiling (parent)
+		{
+			profile_succeed = 0;
+			fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
+			exit_status = 1;
+		}	
+	}	
+	
+	int ret; 				// What getopt_long returns
     extern char *optarg;	// Gives the option strings
     extern int optind;		// Gives the current option out of argc options
     int currOptInd = 0;		// Current option index
@@ -78,15 +94,12 @@ int main(int argc, char **argv)
     int status;             // Used with waitpid in --wait and --waitcmd
 	char *delim;			// Used in --wait and --waitcmd to find end of arg string				
 
-    int exit_status = 0;	// Keeps track of how the program should exit
     int exit_max = 0;		// Sum of child process exit statuses to use when wait_flag set
     int args_found = 0;		// Used to verify --option num of arguments requirement
     int option_index = 0;	// Used with getopt_long
     
     extern int opterr;		// Declared in getopt_long
     opterr = 0;				// Turns off automatic error message from getopt_long
-	
-	int profile_succeed = 1;// Becomes 0 if getrusage fails parent profiling
     
     logicalfd = (int*) malloc (maxfd*sizeof(int)); // fd table. Key is logical fd. Value is real fd. 
 	child = (struct child_proc*) malloc (maxChild*sizeof(struct child_proc));  // keep track of child and the position of its arguments
@@ -148,8 +161,8 @@ int main(int argc, char **argv)
         }
         
         while (1) 	// Loop until getop_long doesn't find anything (then break)
-        {
-            ret = getopt_long(argc, argv, "", long_options, &option_index);
+        {			
+			ret = getopt_long(argc, argv, "", long_options, &option_index);
             currOptInd = optind;
             index = 0;
             
@@ -1007,6 +1020,19 @@ int main(int argc, char **argv)
 	if (profile_flag)
 		profile_print(-1, PAR_SUM, usage, "total PARENT usage");	// Print data for parent sum
 	
+	// END profiling
+	if (profile_flag)
+	{
+		if (getrusage(RUSAGE_SELF, &usage[MAIN_END]) < 0)	// Stop profiling (parent)
+		{
+			profile_succeed = 0;
+			fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
+			exit_status = 1;
+		}
+		if (profile_succeed)		// Only print usage if getrusage succeeded
+			profile_print(MAIN_START, MAIN_END, usage, "PARENT MAIN usage");
+	}
+	
     free (logicalfd);
 	free (child);
 	
@@ -1186,7 +1212,8 @@ void profile_print(int start, int end, struct rusage *usage, char *optname)
 		usage[PAR_SUM].ru_stime.tv_sec += usage[end].ru_stime.tv_sec - usage[start].ru_stime.tv_sec;
 		usage[PAR_SUM].ru_utime.tv_usec += usage[end].ru_utime.tv_usec - usage[start].ru_utime.tv_usec;
 		usage[PAR_SUM].ru_stime.tv_usec += usage[end].ru_stime.tv_usec - usage[start].ru_stime.tv_usec;
-		usage[PAR_SUM].ru_maxrss += max_res_set_size;
+		if (max_res_set_size > usage[PAR_SUM].ru_maxrss)	// Check if new maximum set size
+			usage[PAR_SUM].ru_maxrss = max_res_set_size;
 		usage[PAR_SUM].ru_minflt += page_reclaims;
 		usage[PAR_SUM].ru_majflt += page_faults;
 		usage[PAR_SUM].ru_inblock += block_in_ops;

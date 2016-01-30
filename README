@@ -113,6 +113,9 @@ Notes:
   profile).  The test option is only used for verification testing.  The pause
   option could not be profiled because it stops simpsh until the user restarts
   it, and the resources collected from it would not be meaningful.
+* Profile will only profile commands that come after it (similar to verbose).
+  It should be placed as the first option for simpsh if you wish to profile all
+  the options.
 * Design Problem for lab 1b
   --pipe was extended to support flags (listed above).  This was really easy to
     implement, so that's why we did two design problems listed in the lab spec.
