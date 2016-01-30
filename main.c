@@ -18,8 +18,6 @@
 #define OPT_END 1
 #define CHI_SUM 2
 #define PAR_SUM 3
-#define MAIN_START 4
-#define MAIN_END 5
 #define PIPEFLAGS 0
 
 // Prototypes defined in other c files
@@ -66,23 +64,12 @@ struct child_proc {			// Structure used to pair pid with arguments
 } *child;
 
 // Profiling variables
-static struct rusage usage[6];	// Stores data from getrusage
+static struct rusage usage[4];	// Stores data from getrusage
 
 int main(int argc, char **argv)
 {
     int profile_succeed = 1;// Becomes 0 if getrusage fails parent profiling
-	int exit_status = 0;	// Keeps track of how the program should exit
-	
-	// BEGIN profiling
-	if (1)	// Forced profile because we don't know profile_flag at this point
-	{
-		if (getrusage(RUSAGE_SELF, &usage[MAIN_START]) < 0)	// Start profiling (parent)
-		{
-			profile_succeed = 0;
-			fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
-			exit_status = 1;
-		}	
-	}	
+	int exit_status = 0;	// Keeps track of how the program should exit	
 	
 	int ret; 				// What getopt_long returns
     extern char *optarg;	// Gives the option strings
@@ -162,6 +149,17 @@ int main(int argc, char **argv)
         
         while (1) 	// Loop until getop_long doesn't find anything (then break)
         {			
+			// BEGIN profiling
+			if (profile_flag)
+			{
+				if (getrusage(RUSAGE_SELF, &usage[OPT_START]) < 0)	// Start profiling (parent)
+				{
+					profile_succeed = 0;
+					fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
+					exit_status = 1;
+				}	
+			}	
+			
 			ret = getopt_long(argc, argv, "", long_options, &option_index);
             currOptInd = optind;
             index = 0;
@@ -184,18 +182,7 @@ int main(int argc, char **argv)
                         }
                     }
                     break;
-                case 'r':	// rdonly
-                    // BEGIN profiling
-					if (profile_flag)
-					{
-						if (getrusage(RUSAGE_SELF, &usage[OPT_START]) < 0)	// Start profiling (parent)
-						{
-							profile_succeed = 0;
-							fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
-							exit_status = 1;
-						}	
-					}	
-					
+                case 'r':	// rdonly					
 					if (verbose_flag)
                         printf ("--rdonly ");				
 					
@@ -260,17 +247,6 @@ int main(int argc, char **argv)
 					}
                     break;
                 case 'w':	// wronly
-                    // BEGIN profiling
-					if (profile_flag)
-					{
-						if (getrusage(RUSAGE_SELF, &usage[OPT_START]) < 0)	// Start profiling (parent)
-						{
-							profile_succeed = 0;
-							fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
-							exit_status = 1;
-						}	
-					}	
-					
 					if (verbose_flag)
                         printf ("--wronly ");
                     
@@ -335,18 +311,7 @@ int main(int argc, char **argv)
 					}
                     break;
                 case 'b': 	// read and write (both)
-                    // BEGIN profiling
-					if (profile_flag)
-					{
-						if (getrusage(RUSAGE_SELF, &usage[OPT_START]) < 0)	// Start profiling (parent)
-						{
-							profile_succeed = 0;
-							fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
-							exit_status = 1;
-						}	
-					}	
-					
-					if (verbose_flag)
+                    if (verbose_flag)
                         printf ("--rdwr ");
                     
                     // Process options while optind <= argc or encounter '--'
@@ -410,17 +375,6 @@ int main(int argc, char **argv)
 					}
                     break;
                 case 'x':   // close
-					// BEGIN profiling
-					if (profile_flag)
-					{
-						if (getrusage(RUSAGE_SELF, &usage[OPT_START]) < 0)	// Start profiling (parent)
-						{
-							profile_succeed = 0;
-							fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
-							exit_status = 1;
-						}	
-					}	
-				
                     if (verbose_flag)
                         printf ("--close ");
 										
@@ -478,17 +432,6 @@ int main(int argc, char **argv)
                     break;
                 case 'c':	// command
                 {
-                    // BEGIN profiling
-					if (profile_flag)
-					{
-						if (getrusage(RUSAGE_SELF, &usage[OPT_START]) < 0)	// Start profiling (parent)
-						{
-							profile_succeed = 0;
-							fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
-							exit_status = 1;
-						}	
-					}
-						
 					if (verbose_flag)
                         printf ("--command ");
 					                    
@@ -571,17 +514,6 @@ int main(int argc, char **argv)
                     
                 case 'z': // pipe
                 {
-                    // BEGIN profiling
-					if (profile_flag)
-					{
-						if (getrusage(RUSAGE_SELF, &usage[OPT_START]) < 0)	// Start profiling (parent)
-						{
-							profile_succeed = 0;
-							fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
-							exit_status = 1;
-						}	
-					}
-						
 					if(verbose_flag)
                         printf("--pipe\n");
                     
@@ -630,17 +562,6 @@ int main(int argc, char **argv)
                 }
                 case 'a':	// abort
                 {
-                    // BEGIN profiling
-					if (profile_flag)
-					{
-						if (getrusage(RUSAGE_SELF, &usage[OPT_START]) < 0)	// Start profiling (parent)
-						{
-							profile_succeed = 0;
-							fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
-							exit_status = 1;
-						}	
-					}
-					
 					if (verbose_flag)
 						printf("--abort\n");
 					
@@ -665,17 +586,6 @@ int main(int argc, char **argv)
                     break;
                 }
                 case 's':	// catch (signal)
-                    // BEGIN profiling
-					if (profile_flag)
-					{
-						if (getrusage(RUSAGE_SELF, &usage[OPT_START]) < 0)	// Start profiling (parent)
-						{
-							profile_succeed = 0;
-							fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
-							exit_status = 1;
-						}	
-					}
-					
 					if (verbose_flag)
                         printf ("--catch ");
                     
@@ -737,17 +647,6 @@ int main(int argc, char **argv)
 					}
                     break;
                 case 'i':	// ignore (signal)
-					// BEGIN profiling
-					if (profile_flag)
-					{
-						if (getrusage(RUSAGE_SELF, &usage[OPT_START]) < 0)	// Start profiling (parent)
-						{
-							profile_succeed = 0;
-							fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
-							exit_status = 1;
-						}	
-					}
-					
 					if (verbose_flag)
                         printf ("--ignore ");
                     
@@ -810,17 +709,6 @@ int main(int argc, char **argv)
 					}
                     break;
                 case 'd':	// default (signal)
-                    // BEGIN profiling
-					if (profile_flag)
-					{
-						if (getrusage(RUSAGE_SELF, &usage[OPT_START]) < 0)	// Start profiling (parent)
-						{
-							profile_succeed = 0;
-							fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
-							exit_status = 1;
-						}	
-					}
-					
 					if (verbose_flag)
                         printf ("--default ");
                     
@@ -1019,19 +907,6 @@ int main(int argc, char **argv)
     }
 	if (profile_flag)
 		profile_print(-1, PAR_SUM, usage, "total PARENT usage");	// Print data for parent sum
-	
-	// END profiling
-	if (profile_flag)
-	{
-		if (getrusage(RUSAGE_SELF, &usage[MAIN_END]) < 0)	// Stop profiling (parent)
-		{
-			profile_succeed = 0;
-			fprintf (stderr, "Error: --profile failed. %s\n", strerror(errno));
-			exit_status = 1;
-		}
-		if (profile_succeed)		// Only print usage if getrusage succeeded
-			profile_print(MAIN_START, MAIN_END, usage, "PARENT MAIN usage");
-	}
 	
     free (logicalfd);
 	free (child);
