@@ -7,7 +7,7 @@
 make clean
 make
 
-TESTNUM=13
+TESTNUM=14
 PASSNUM=0
 
 # Test 1 - cat
@@ -189,7 +189,7 @@ touch d
 
 cat a | tr A-Z a-z > d
 
-(./simpsh --rdonly a --wronly b --pipe --wronly c --command 0 3 4 cat a --command 2 1 4 tr A-Z a-z --close 3 --wait)> /dev/null
+(./simpsh --rdonly a --wronly b --nonblock --pipe --wronly c --command 0 3 4 cat a --command 2 1 4 tr A-Z a-z --close 3 --wait)> /dev/null
 
 diff -u b d
 
@@ -247,10 +247,40 @@ fi
 
 rm e f
 
+# Test 14 - waitcmd
+
+printf "4\n3\n2\n1\n" > a
+echo "THIS IS FILE B" > b
+echo "THIS IS FILE C" > c
+printf "0 sort a \n0 cat c \n" > f
+
+(sort < a | cat b - c) > d
+(cat c | tr A-z a-z | cat d -) > e
+
+(./simpsh --rdonly a --append --wronly b --rdwr c --command 0 1 2 sort a --waitcmd 0 --command 0 1 2 cat c --waitcmd 1 --command 2 1 2 tr A-Z a-z)> g
+
+diff -u b e
+DIFF1=$?
+
+diff -u f g
+DIFF2=$?
+
+rm e f g
+
+if [ $DIFF1 -eq 0 -a $DIFF2 -eq 0 ]
+then
+    echo "Test 14/$TESTNUM passed"
+    PASSNUM=$((PASSNUM+1))
+else
+    echo "Test 14/$TESTNUM failed!?"
+fi
+
+
 if [ $PASSNUM -eq $TESTNUM ]
 then
     echo "ALL TESTS PASSED!!!"
 else
     echo "SOME TESTS FAILED???"
 fi
+
 

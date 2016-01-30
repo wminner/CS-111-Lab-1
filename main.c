@@ -75,6 +75,8 @@ int main(int argc, char **argv)
     int index = 0;			// Index into optarg
     int flags;				// Flags to open file with
 	int signum;				// Used to keep signal number
+    int status;             // Used with waitpid in --wait and --waitcmd
+	char *delim;			// Used in --wait and --waitcmd to find end of arg string				
 
     int exit_status = 0;	// Keeps track of how the program should exit
     int exit_max = 0;		// Sum of child process exit statuses to use when wait_flag set
@@ -124,6 +126,7 @@ int main(int argc, char **argv)
         {"default", required_argument, 0, 'd' },
         {"close",   required_argument, 0, 'x' },
 		{"wait", 	no_argument,       0, 't' },
+        {"waitcmd", required_argument, 0, 'm' },
         {0, 0, 0, 0}
     };
     
@@ -138,10 +141,8 @@ int main(int argc, char **argv)
     }
     else if (argc > 1) // At least one argument
     {
-        for (int i = 0; i < argc; i++)	// Pre-scan looking for "--wait" and "--test"
+        for (int i = 0; i < argc; i++)	// Pre-scan looking for "--test"
         {
-            if (strcmp(argv[i], "--wait") == 0) // Found "--wait"
-                wait_flag = 1;
 			if (strcmp(argv[i], "--test") == 0)	// Found "--test"
                 test_flag = 1;
         }
@@ -867,16 +868,81 @@ int main(int argc, char **argv)
 							profile_print(OPT_START, OPT_END, usage, "default");
 					}
                     break;
-				case 't': 	// wait
+				case 'm':   // waitcmd
+                {
+                    if (verbose_flag)
+                        printf ("--waitcmd ");
+                    
+                    int status;
+                    int childnum;
+                    
+                    // Process options while optind <= argc or encounter '--' 
+                    while (currOptInd <= argc)
+                    {
+                        if (optarg[index] == '-' && optarg[index+1] == '-') // Check for '--'
+                            break;
+                        else	// Else, found another argument
+                            args_found++;
+                        if (verbose_flag)
+                            printf ("%s ", optarg+index);
+                        while (optarg[index] != '\0')
+                            index++;
+                        index++;
+                        currOptInd++;
+                    }
+                    if (verbose_flag)
+                        printf ("\n");
+                    
+                    if (args_found != 1)	// Error if num of args not 1
+                    {
+                        fprintf (stderr, "Error: \"--waitcmd\" requires one argument.  You supplied %d arguments.\n", args_found);
+                        exit_status = 1;
+						if (args_found == 0)	// If no args found, decrement optind so we don't skip the next option
+							optind--;
+                        args_found = 0;
+                        break;
+                    }
+                    
+                    childnum = atoi(optarg);   // Get requested argument
+                    if (childnum < childInd)
+					{
+						waitpid(child[childnum].pid, &status, 0);
+						if (WIFEXITED(status))
+						{
+							printf ("%d ", WEXITSTATUS(status));
+							if (WEXITSTATUS(status) > exit_max) // Mask LSB (8 bits) for status
+								exit_max = WEXITSTATUS(status);
+							wait_flag = 1;	// Only set wait_flag if we have successfully gathered the child's exit status
+						}
+						else
+							exit_status = 1;
+						
+						index = 0;
+						while (!(child[childnum].args[index] == '-' && child[childnum].args[index+1] == '-'))
+						{
+							printf ("%s ", child[childnum].args+index);
+							delim = strchr(child[childnum].args+index, '\0');	// Look for null byte
+							index = delim - child[childnum].args + 1;
+						}
+						printf ("\n");
+					}
+					else
+					{
+						fprintf(stderr, "Error: --waitcmd invalid command number \'%d\'.\n", childnum);
+						exit_status = 1;
+					}
+					
+                    args_found = 0;
+                    break;
+                }
+                case 't': 	// wait
 				{
 					if (verbose_flag)
                         printf ("--wait\n");
 					
 					pid_t waited_pid;		// Stores pid of child reaped
-					int status, i; 
-					int index = 0;
-					char *delim;
-					wait_flag = 1;
+					int i; 
+					index = 0;
 					
 					while (1)	// Keeping reaping until no more children
 					{
@@ -884,8 +950,15 @@ int main(int argc, char **argv)
 						if (waited_pid < 0)	  // No more children to wait on
 							break;
 						
-						if (WIFEXITED(status))
+						if (WIFEXITED(status))	// Check if child exited normally
+						{
 							printf ("%d ", WEXITSTATUS(status));
+							if (WEXITSTATUS(status) > exit_max) // Mask LSB (8 bits) for status
+								exit_max = WEXITSTATUS(status);
+							wait_flag = 1;	// Only set wait_flag if we have successfully gathered the child's exit status
+						}
+						else
+							exit_status = 1;
 						
 						// Loop through all children and find matching pid
 						for (i = 0; i < childInd; i++)
@@ -904,14 +977,6 @@ int main(int argc, char **argv)
 								break;
 							}
 						}
-						 
-						if (WIFEXITED(status))	// Check if child exited normally
-						{
-							if (WEXITSTATUS(status) > exit_max) // Mask LSB (8 bits) for status
-								exit_max = WEXITSTATUS(status);
-						}
-						else
-							exit_status = 1;
 					}
 					
 					if (profile_flag)

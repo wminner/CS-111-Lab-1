@@ -26,6 +26,7 @@ simpsh functionality:
 	--verbose
 	--brief (cancel verbose on rest of commands)
 	--wait 
+	--waitcmd (design problem 1b)
 	--test (used to serialize all commands for verification testing)
 	--pause
 	--abort
@@ -45,7 +46,7 @@ simpsh functionality:
 	--rsync
 	--sync
 	--trunc
-* Flags are supported by pipes (as seen in pipe2 man page)
+* Flags are supported by pipes (as seen in pipe2 man page) (design problem 1b)
 	--cloexec
 	--nonblock
 	--direct
@@ -72,6 +73,7 @@ simpsh functionality:
 	--catch (1)
 	--default (1)
 	--ignore (1)
+	--waitcmd (1)
 
 	
 Lab 1a TODO:
@@ -91,8 +93,7 @@ Lab 1c TODO:
 
 
 Lab 1b Design Problem TODO:
-* Extend shell to wait for individual sub commands, instead of waiting for all to finish (--test)
-	--wait N:  waits for nth --command and outputs command name and options
+* N/A
 
   
 Notes:
@@ -112,6 +113,12 @@ Notes:
   profile).  The test option is only used for verification testing.  The pause
   option could not be profiled because it stops simpsh until the user restarts
   it, and the resources collected from it would not be meaningful.
+* Design Problem for lab 1b
+  --pipe was extended to support flags (listed above).  This was really easy to
+    implement, so that's why we did two design problems listed in the lab spec.
+  --waitcmd N was added to wait for individual commands.  N is the command
+    number you wish to wait for, with the first command starting at index 0.  It
+	outputs the commands exit status and arguments in the same style as --wait.
   
   
 Known Issues:
