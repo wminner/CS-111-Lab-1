@@ -18,6 +18,7 @@
 #define OPT_END 1
 #define CHI_SUM 2
 #define PAR_SUM 3
+#define USAGE_TOTAL 4
 #define PIPEFLAGS 0
 
 // Prototypes defined in other c files
@@ -64,7 +65,7 @@ struct child_proc {			// Structure used to pair pid with arguments
 } *child;
 
 // Profiling variables
-static struct rusage usage[4];	// Stores data from getrusage
+static struct rusage usage[5];	// Stores data from getrusage
 
 int main(int argc, char **argv)
 {
@@ -906,7 +907,10 @@ int main(int argc, char **argv)
         }
     }
 	if (profile_flag)
+	{
 		profile_print(-1, PAR_SUM, usage, "total PARENT usage");	// Print data for parent sum
+		profile_print(-1, USAGE_TOTAL, usage, "total PARENT + CHILD usage");	// Sum parent and child usage
+	}
 	
     free (logicalfd);
 	free (child);
@@ -1112,6 +1116,23 @@ void profile_print(int start, int end, struct rusage *usage, char *optname)
 		block_out_ops = usage[end].ru_oublock;
 		vol_context_switch = usage[end].ru_nvcsw;
 		invol_context_switch = usage[end].ru_nivcsw;
+		
+		if (end != USAGE_TOTAL)	// Don't add USAGE_TOTAL to USAGE_TOTAL
+		{
+			// Keep track of total parent + child usage
+			usage[USAGE_TOTAL].ru_utime.tv_sec += usage[end].ru_utime.tv_sec;
+			usage[USAGE_TOTAL].ru_stime.tv_sec += usage[end].ru_stime.tv_sec;
+			usage[USAGE_TOTAL].ru_utime.tv_usec += usage[end].ru_utime.tv_usec;
+			usage[USAGE_TOTAL].ru_stime.tv_usec += usage[end].ru_stime.tv_usec;
+			if (max_res_set_size > usage[USAGE_TOTAL].ru_maxrss)	// Check if new maximum set size
+				usage[USAGE_TOTAL].ru_maxrss = max_res_set_size;
+			usage[USAGE_TOTAL].ru_minflt += page_reclaims;
+			usage[USAGE_TOTAL].ru_majflt += page_faults;
+			usage[USAGE_TOTAL].ru_inblock += block_in_ops;
+			usage[USAGE_TOTAL].ru_oublock += block_out_ops;
+			usage[USAGE_TOTAL].ru_nvcsw += vol_context_switch;
+			usage[USAGE_TOTAL].ru_nivcsw += invol_context_switch;
+		}
 	}
 	
 	printf ("Profiling %s...\n", optname);
