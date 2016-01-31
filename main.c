@@ -909,7 +909,7 @@ int main(int argc, char **argv)
 	if (profile_flag)
 	{
 		profile_print(-1, PAR_SUM, usage, "total PARENT usage");	// Print data for parent sum
-		profile_print(-1, USAGE_TOTAL, usage, "total PARENT + CHILD usage");	// Sum parent and child usage
+		profile_print(-1, USAGE_TOTAL, usage, "total PARENT + CHILD usage");	// Print sum of parent and child
 	}
 	
     free (logicalfd);
