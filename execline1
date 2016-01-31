@@ -1,0 +1,6 @@
+#!/usr/local/cs/execline-2.1.4.5/bin/execlineb -P
+redirfd -w 1 y
+redirfd -w 2 c
+pipeline { cat z }
+pipeline { tr A-Z a-z }
+foreground { tr -sd 'b' 'a' } 
