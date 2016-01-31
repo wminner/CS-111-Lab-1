@@ -85,12 +85,8 @@ Lab 1b TODO:
 
 
 Lab 1c TODO:
-* --profile verification testing and comparison w/ expected values
-* create 3 test cases for simpsh
-* translate test cases to bash
-* translate test cases to execline (/usr/local/cs/execline-2.1.4.5/bin)
 * perform test cases on all shells and compare results in document
-
+* find out why 'time' cannot track execline in a script
 
 Lab 1b Design Problem TODO:
 * N/A
