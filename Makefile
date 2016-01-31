@@ -28,6 +28,6 @@ check: test.sh
 	./test.sh
 
 clean:
-	rm -rf *~ *.o *.tar.gz simpsh $(DIR) a b c d *.tmp
+	rm -rf *~ *.o *.tar.gz simpsh $(DIR) a b c d e x y z *.tmp
 time:
 	./time.sh
