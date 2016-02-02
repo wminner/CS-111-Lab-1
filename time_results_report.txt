@@ -1,0 +1,2472 @@
+*************************TEST 1*************************
+********** BASH TEST 1-1 **********
+
+real	0m0.004s
+user	0m0.000s
+sys	0m0.003s
+Max resident set size:	656
+Block Input	0
+Block Output	0
+Page Reclaims:	211
+Page Faults:	0
+Voluntary context switches:	3
+Involuntary context switches:	1
+
+********** BASH TEST 1-2 **********
+
+real	0m0.004s
+user	0m0.000s
+sys	0m0.004s
+Max resident set size:	660
+Block Input	0
+Block Output	0
+Page Reclaims:	212
+Page Faults:	0
+Voluntary context switches:	3
+Involuntary context switches:	1
+
+********** BASH TEST 1-3 **********
+
+real	0m0.004s
+user	0m0.001s
+sys	0m0.003s
+Max resident set size:	660
+Block Input	0
+Block Output	0
+Page Reclaims:	212
+Page Faults:	0
+Voluntary context switches:	3
+Involuntary context switches:	1
+
+********** BASH TEST 1-4 **********
+
+real	0m0.004s
+user	0m0.000s
+sys	0m0.003s
+Max resident set size:	660
+Block Input	0
+Block Output	0
+Page Reclaims:	212
+Page Faults:	0
+Voluntary context switches:	4
+Involuntary context switches:	1
+
+********** BASH TEST 1-5 **********
+
+real	0m0.005s
+user	0m0.000s
+sys	0m0.003s
+Max resident set size:	660
+Block Input	0
+Block Output	0
+Page Reclaims:	213
+Page Faults:	0
+Voluntary context switches:	3
+Involuntary context switches:	1
+
+********** SIMPSH TEST 1-1 **********
+Profiling rdonly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000044s
+  Max resident set size:        0kB
+  Page reclaims:                1
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   1
+  Involuntary context switches: 0
+Profiling pipe...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000010s
+  Max resident set size:        0kB
+  Page reclaims:                1
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling pipe...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000005s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling wronly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000050s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   2
+  Involuntary context switches: 0
+Profiling wronly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000040s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   2
+  Involuntary context switches: 0
+Profiling cat...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000071s
+  Max resident set size:        0kB
+  Page reclaims:                11
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling tr...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000051s
+  Max resident set size:        0kB
+  Page reclaims:                7
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling tr...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000050s
+  Max resident set size:        0kB
+  Page reclaims:                7
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling close...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000005s
+  Max resident set size:        0kB
+  Page reclaims:                2
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling close...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000001s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+0 cat 
+0 tr A-Z a-z 
+0 tr -sd b d 
+Profiling total CHILD usage...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.001941s
+  Max resident set size:        668kB
+  Page reclaims:                665
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             8
+  Voluntary context switches:   7
+  Involuntary context switches: 3
+Profiling total PARENT usage...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000327s
+  Max resident set size:        0kB
+  Page reclaims:                29
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   5
+  Involuntary context switches: 0
+Profiling total PARENT + CHILD usage...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.002268s
+  Max resident set size:        668kB
+  Page reclaims:                694
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             8
+  Voluntary context switches:   12
+  Involuntary context switches: 3
+
+********** SIMPSH TEST 1-2 **********
+Profiling rdonly...
+  User CPU Time:                0.000044s
+  System CPU Time:              0.000000s
+  Max resident set size:        0kB
+  Page reclaims:                1
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   1
+  Involuntary context switches: 0
+Profiling pipe...
+  User CPU Time:                0.000011s
+  System CPU Time:              0.000000s
+  Max resident set size:        0kB
+  Page reclaims:                1
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling pipe...
+  User CPU Time:                0.000005s
+  System CPU Time:              0.000000s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling wronly...
+  User CPU Time:                0.000038s
+  System CPU Time:              0.000000s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   1
+  Involuntary context switches: 0
+Profiling wronly...
+  User CPU Time:                0.000026s
+  System CPU Time:              0.000000s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   1
+  Involuntary context switches: 0
+Profiling cat...
+  User CPU Time:                0.000074s
+  System CPU Time:              0.000000s
+  Max resident set size:        0kB
+  Page reclaims:                11
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling tr...
+  User CPU Time:                0.000051s
+  System CPU Time:              0.000000s
+  Max resident set size:        164kB
+  Page reclaims:                7
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling tr...
+  User CPU Time:                0.000050s
+  System CPU Time:              0.000000s
+  Max resident set size:        0kB
+  Page reclaims:                7
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling close...
+  User CPU Time:                0.000007s
+  System CPU Time:              0.000000s
+  Max resident set size:        0kB
+  Page reclaims:                2
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling close...
+  User CPU Time:                0.000002s
+  System CPU Time:              0.000000s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+0 cat 
+0 tr A-Z a-z 
+0 tr -sd b d 
+Profiling total CHILD usage...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.001949s
+  Max resident set size:        672kB
+  Page reclaims:                667
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             8
+  Voluntary context switches:   8
+  Involuntary context switches: 3
+Profiling total PARENT usage...
+  User CPU Time:                0.000308s
+  System CPU Time:              0.000000s
+  Max resident set size:        164kB
+  Page reclaims:                29
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   3
+  Involuntary context switches: 0
+Profiling total PARENT + CHILD usage...
+  User CPU Time:                0.000308s
+  System CPU Time:              0.001949s
+  Max resident set size:        672kB
+  Page reclaims:                696
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             8
+  Voluntary context switches:   11
+  Involuntary context switches: 3
+
+********** SIMPSH TEST 1-3 **********
+Profiling rdonly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000042s
+  Max resident set size:        0kB
+  Page reclaims:                1
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   1
+  Involuntary context switches: 0
+Profiling pipe...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000010s
+  Max resident set size:        0kB
+  Page reclaims:                1
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling pipe...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000003s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling wronly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000043s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   1
+  Involuntary context switches: 0
+Profiling wronly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000034s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   1
+  Involuntary context switches: 0
+Profiling cat...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000089s
+  Max resident set size:        0kB
+  Page reclaims:                11
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling tr...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000052s
+  Max resident set size:        160kB
+  Page reclaims:                7
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling tr...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000060s
+  Max resident set size:        0kB
+  Page reclaims:                7
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling close...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000007s
+  Max resident set size:        0kB
+  Page reclaims:                2
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling close...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000002s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+0 cat 
+0 tr A-Z a-z 
+0 tr -sd b d 
+Profiling total CHILD usage...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.002034s
+  Max resident set size:        672kB
+  Page reclaims:                667
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             8
+  Voluntary context switches:   7
+  Involuntary context switches: 3
+Profiling total PARENT usage...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000342s
+  Max resident set size:        160kB
+  Page reclaims:                29
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   3
+  Involuntary context switches: 0
+Profiling total PARENT + CHILD usage...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.002376s
+  Max resident set size:        672kB
+  Page reclaims:                696
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             8
+  Voluntary context switches:   10
+  Involuntary context switches: 3
+
+********** SIMPSH TEST 1-4 **********
+Profiling rdonly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000044s
+  Max resident set size:        0kB
+  Page reclaims:                1
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   1
+  Involuntary context switches: 0
+Profiling pipe...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000011s
+  Max resident set size:        0kB
+  Page reclaims:                1
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling pipe...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000003s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling wronly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000039s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   1
+  Involuntary context switches: 0
+Profiling wronly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000027s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   1
+  Involuntary context switches: 0
+Profiling cat...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000071s
+  Max resident set size:        0kB
+  Page reclaims:                11
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling tr...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000048s
+  Max resident set size:        160kB
+  Page reclaims:                7
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling tr...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000060s
+  Max resident set size:        0kB
+  Page reclaims:                7
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling close...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000005s
+  Max resident set size:        0kB
+  Page reclaims:                2
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling close...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000001s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+0 cat 
+0 tr A-Z a-z 
+0 tr -sd b d 
+Profiling total CHILD usage...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.002232s
+  Max resident set size:        672kB
+  Page reclaims:                666
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             8
+  Voluntary context switches:   8
+  Involuntary context switches: 3
+Profiling total PARENT usage...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000309s
+  Max resident set size:        160kB
+  Page reclaims:                29
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   3
+  Involuntary context switches: 0
+Profiling total PARENT + CHILD usage...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.002541s
+  Max resident set size:        672kB
+  Page reclaims:                695
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             8
+  Voluntary context switches:   11
+  Involuntary context switches: 3
+
+********** SIMPSH TEST 1-5 **********
+Profiling rdonly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000046s
+  Max resident set size:        0kB
+  Page reclaims:                1
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   1
+  Involuntary context switches: 0
+Profiling pipe...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000011s
+  Max resident set size:        0kB
+  Page reclaims:                1
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling pipe...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000004s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling wronly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000038s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   1
+  Involuntary context switches: 0
+Profiling wronly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000027s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   1
+  Involuntary context switches: 0
+Profiling cat...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000065s
+  Max resident set size:        0kB
+  Page reclaims:                11
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling tr...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000053s
+  Max resident set size:        0kB
+  Page reclaims:                7
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling tr...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000062s
+  Max resident set size:        0kB
+  Page reclaims:                7
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling close...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000005s
+  Max resident set size:        0kB
+  Page reclaims:                2
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling close...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000002s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+0 cat 
+0 tr A-Z a-z 
+0 tr -sd b d 
+Profiling total CHILD usage...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.002115s
+  Max resident set size:        672kB
+  Page reclaims:                667
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             8
+  Voluntary context switches:   7
+  Involuntary context switches: 3
+Profiling total PARENT usage...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000313s
+  Max resident set size:        0kB
+  Page reclaims:                29
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   3
+  Involuntary context switches: 0
+Profiling total PARENT + CHILD usage...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.002428s
+  Max resident set size:        672kB
+  Page reclaims:                696
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             8
+  Voluntary context switches:   10
+  Involuntary context switches: 3
+
+DIFF RESULTS: No output differences
+
+********** EXECLINE TEST 1-1 **********
+execlineb: fatal: unable to exec redirfd: No such file or directory
+
+real	0m0.003s
+user	0m0.001s
+sys	0m0.000s
+rm: cannot remove 'w': No such file or directory
+execlineb: fatal: unable to exec redirfd: No such file or directory
+Max Resident Set Size:	548
+Block Input:	0
+Block Output:	8
+Page Reclaims:	176
+Page Faults:	0
+Voluntary Context Switches:	5
+Involuntary Context Switches:	1
+
+********** EXECLINE TEST 1-2 **********
+execlineb: fatal: unable to exec redirfd: No such file or directory
+
+real	0m0.002s
+user	0m0.000s
+sys	0m0.001s
+rm: cannot remove 'w': No such file or directory
+execlineb: fatal: unable to exec redirfd: No such file or directory
+Max Resident Set Size:	544
+Block Input:	0
+Block Output:	8
+Page Reclaims:	175
+Page Faults:	0
+Voluntary Context Switches:	5
+Involuntary Context Switches:	1
+
+********** EXECLINE TEST 1-3 **********
+execlineb: fatal: unable to exec redirfd: No such file or directory
+
+real	0m0.002s
+user	0m0.000s
+sys	0m0.001s
+rm: cannot remove 'w': No such file or directory
+execlineb: fatal: unable to exec redirfd: No such file or directory
+Max Resident Set Size:	548
+Block Input:	0
+Block Output:	8
+Page Reclaims:	176
+Page Faults:	0
+Voluntary Context Switches:	5
+Involuntary Context Switches:	1
+
+********** EXECLINE TEST 1-4 **********
+execlineb: fatal: unable to exec redirfd: No such file or directory
+
+real	0m0.002s
+user	0m0.000s
+sys	0m0.001s
+rm: cannot remove 'w': No such file or directory
+execlineb: fatal: unable to exec redirfd: No such file or directory
+Max Resident Set Size:	544
+Block Input:	0
+Block Output:	8
+Page Reclaims:	175
+Page Faults:	0
+Voluntary Context Switches:	5
+Involuntary Context Switches:	1
+
+********** EXECLINE TEST 1-5 **********
+execlineb: fatal: unable to exec redirfd: No such file or directory
+
+real	0m0.002s
+user	0m0.000s
+sys	0m0.001s
+rm: cannot remove 'w': No such file or directory
+execlineb: fatal: unable to exec redirfd: No such file or directory
+Max Resident Set Size:	548
+Block Input:	0
+Block Output:	8
+Page Reclaims:	176
+Page Faults:	0
+Voluntary Context Switches:	5
+Involuntary Context Switches:	1
+
+diff: w: No such file or directory
+rm: cannot remove 'w': No such file or directory
+*************************TEST 2*************************
+********** BASH TEST 2-1 **********
+
+real	0m0.003s
+user	0m0.000s
+sys	0m0.004s
+Max resident set size:	656
+Block Input	0
+Block Output	0
+Page Reclaims:	211
+Page Faults:	0
+Voluntary context switches:	3
+Involuntary context switches:	1
+
+********** BASH TEST 2-2 **********
+
+real	0m0.004s
+user	0m0.002s
+sys	0m0.001s
+Max resident set size:	660
+Block Input	0
+Block Output	0
+Page Reclaims:	213
+Page Faults:	0
+Voluntary context switches:	3
+Involuntary context switches:	1
+
+********** BASH TEST 2-3 **********
+
+real	0m0.004s
+user	0m0.000s
+sys	0m0.003s
+Max resident set size:	656
+Block Input	0
+Block Output	0
+Page Reclaims:	211
+Page Faults:	0
+Voluntary context switches:	3
+Involuntary context switches:	1
+
+********** BASH TEST 2-4 **********
+
+real	0m0.003s
+user	0m0.001s
+sys	0m0.003s
+Max resident set size:	660
+Block Input	0
+Block Output	0
+Page Reclaims:	212
+Page Faults:	0
+Voluntary context switches:	3
+Involuntary context switches:	1
+
+********** BASH TEST 2-5 **********
+
+real	0m0.003s
+user	0m0.000s
+sys	0m0.004s
+Max resident set size:	660
+Block Input	0
+Block Output	0
+Page Reclaims:	213
+Page Faults:	0
+Voluntary context switches:	3
+Involuntary context switches:	1
+
+********** SIMPSH TEST 2-1 **********
+Profiling rdonly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000041s
+  Max resident set size:        0kB
+  Page reclaims:                1
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   1
+  Involuntary context switches: 0
+Profiling wronly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000033s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   1
+  Involuntary context switches: 0
+Profiling wronly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000027s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   1
+  Involuntary context switches: 0
+Profiling pipe...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000008s
+  Max resident set size:        0kB
+  Page reclaims:                1
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling pipe...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000003s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling cat...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000068s
+  Max resident set size:        0kB
+  Page reclaims:                11
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling tr...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000044s
+  Max resident set size:        0kB
+  Page reclaims:                7
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling sort...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000046s
+  Max resident set size:        0kB
+  Page reclaims:                7
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling close...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000006s
+  Max resident set size:        0kB
+  Page reclaims:                2
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling close...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000001s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+0 cat 
+0 tr A-Z a-z 
+0 sort 
+Profiling total CHILD usage...
+  User CPU Time:                0.000754s
+  System CPU Time:              0.001586s
+  Max resident set size:        884kB
+  Page reclaims:                734
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             8
+  Voluntary context switches:   7
+  Involuntary context switches: 3
+Profiling total PARENT usage...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000277s
+  Max resident set size:        0kB
+  Page reclaims:                29
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   3
+  Involuntary context switches: 0
+Profiling total PARENT + CHILD usage...
+  User CPU Time:                0.000754s
+  System CPU Time:              0.001863s
+  Max resident set size:        884kB
+  Page reclaims:                763
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             8
+  Voluntary context switches:   10
+  Involuntary context switches: 3
+
+********** SIMPSH TEST 2-2 **********
+Profiling rdonly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000038s
+  Max resident set size:        0kB
+  Page reclaims:                1
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   1
+  Involuntary context switches: 0
+Profiling wronly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000044s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   2
+  Involuntary context switches: 0
+Profiling wronly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000038s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   2
+  Involuntary context switches: 0
+Profiling pipe...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000008s
+  Max resident set size:        0kB
+  Page reclaims:                1
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling pipe...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000004s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling cat...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000050s
+  Max resident set size:        0kB
+  Page reclaims:                11
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling tr...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000049s
+  Max resident set size:        0kB
+  Page reclaims:                7
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling sort...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000052s
+  Max resident set size:        0kB
+  Page reclaims:                7
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling close...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000007s
+  Max resident set size:        0kB
+  Page reclaims:                2
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling close...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000001s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+0 cat 
+0 tr A-Z a-z 
+0 sort 
+Profiling total CHILD usage...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.002499s
+  Max resident set size:        876kB
+  Page reclaims:                732
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             8
+  Voluntary context switches:   8
+  Involuntary context switches: 3
+Profiling total PARENT usage...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000291s
+  Max resident set size:        0kB
+  Page reclaims:                29
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   5
+  Involuntary context switches: 0
+Profiling total PARENT + CHILD usage...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.002790s
+  Max resident set size:        876kB
+  Page reclaims:                761
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             8
+  Voluntary context switches:   13
+  Involuntary context switches: 3
+
+********** SIMPSH TEST 2-3 **********
+Profiling rdonly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000041s
+  Max resident set size:        0kB
+  Page reclaims:                1
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   1
+  Involuntary context switches: 0
+Profiling wronly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000030s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   1
+  Involuntary context switches: 0
+Profiling wronly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000024s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   1
+  Involuntary context switches: 0
+Profiling pipe...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000008s
+  Max resident set size:        0kB
+  Page reclaims:                1
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling pipe...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000004s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling cat...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000059s
+  Max resident set size:        0kB
+  Page reclaims:                11
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling tr...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000045s
+  Max resident set size:        160kB
+  Page reclaims:                7
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling sort...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000059s
+  Max resident set size:        0kB
+  Page reclaims:                7
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling close...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000008s
+  Max resident set size:        0kB
+  Page reclaims:                2
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling close...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000002s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+0 cat 
+0 tr A-Z a-z 
+0 sort 
+Profiling total CHILD usage...
+  User CPU Time:                0.000472s
+  System CPU Time:              0.002386s
+  Max resident set size:        876kB
+  Page reclaims:                729
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             8
+  Voluntary context switches:   13
+  Involuntary context switches: 3
+Profiling total PARENT usage...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000280s
+  Max resident set size:        160kB
+  Page reclaims:                29
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   3
+  Involuntary context switches: 0
+Profiling total PARENT + CHILD usage...
+  User CPU Time:                0.000472s
+  System CPU Time:              0.002666s
+  Max resident set size:        876kB
+  Page reclaims:                758
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             8
+  Voluntary context switches:   16
+  Involuntary context switches: 3
+
+********** SIMPSH TEST 2-4 **********
+Profiling rdonly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000046s
+  Max resident set size:        0kB
+  Page reclaims:                1
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   1
+  Involuntary context switches: 0
+Profiling wronly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000028s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   1
+  Involuntary context switches: 0
+Profiling wronly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000025s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   1
+  Involuntary context switches: 0
+Profiling pipe...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000007s
+  Max resident set size:        0kB
+  Page reclaims:                1
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling pipe...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000003s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling cat...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000061s
+  Max resident set size:        0kB
+  Page reclaims:                11
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling tr...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000062s
+  Max resident set size:        164kB
+  Page reclaims:                8
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling sort...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000067s
+  Max resident set size:        0kB
+  Page reclaims:                8
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling close...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000008s
+  Max resident set size:        0kB
+  Page reclaims:                3
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling close...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000002s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+0 cat 
+0 tr A-Z a-z 
+0 sort 
+Profiling total CHILD usage...
+  User CPU Time:                0.000938s
+  System CPU Time:              0.001304s
+  Max resident set size:        876kB
+  Page reclaims:                730
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             8
+  Voluntary context switches:   10
+  Involuntary context switches: 3
+Profiling total PARENT usage...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000309s
+  Max resident set size:        164kB
+  Page reclaims:                32
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   3
+  Involuntary context switches: 0
+Profiling total PARENT + CHILD usage...
+  User CPU Time:                0.000938s
+  System CPU Time:              0.001613s
+  Max resident set size:        876kB
+  Page reclaims:                762
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             8
+  Voluntary context switches:   13
+  Involuntary context switches: 3
+
+********** SIMPSH TEST 2-5 **********
+Profiling rdonly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000101s
+  Max resident set size:        0kB
+  Page reclaims:                1
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   1
+  Involuntary context switches: 0
+Profiling wronly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000090s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   1
+  Involuntary context switches: 0
+Profiling wronly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000093s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   1
+  Involuntary context switches: 0
+Profiling pipe...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000011s
+  Max resident set size:        0kB
+  Page reclaims:                1
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling pipe...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000004s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling cat...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000065s
+  Max resident set size:        0kB
+  Page reclaims:                11
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling tr...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000052s
+  Max resident set size:        0kB
+  Page reclaims:                7
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling sort...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000058s
+  Max resident set size:        0kB
+  Page reclaims:                7
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling close...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000007s
+  Max resident set size:        0kB
+  Page reclaims:                2
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling close...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000001s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+0 cat 
+0 tr A-Z a-z 
+0 sort 
+Profiling total CHILD usage...
+  User CPU Time:                0.000955s
+  System CPU Time:              0.001543s
+  Max resident set size:        884kB
+  Page reclaims:                734
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             8
+  Voluntary context switches:   7
+  Involuntary context switches: 3
+Profiling total PARENT usage...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000482s
+  Max resident set size:        0kB
+  Page reclaims:                29
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   3
+  Involuntary context switches: 0
+Profiling total PARENT + CHILD usage...
+  User CPU Time:                0.000955s
+  System CPU Time:              0.002025s
+  Max resident set size:        884kB
+  Page reclaims:                763
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             8
+  Voluntary context switches:   10
+  Involuntary context switches: 3
+
+DIFF RESULTS: No output differences
+
+********** EXECLINE TEST 2-1 **********
+execlineb: fatal: unable to exec redirfd: No such file or directory
+
+real	0m0.002s
+user	0m0.000s
+sys	0m0.001s
+rm: cannot remove 'f': No such file or directory
+execlineb: fatal: unable to exec redirfd: No such file or directory
+Max Resident Set Size:	544
+Block Input:	0
+Block Output:	8
+Page Reclaims:	175
+Page Faults:	0
+Voluntary Context Switches:	5
+Involuntary Context Switches:	1
+
+********** EXECLINE TEST 2-2 **********
+execlineb: fatal: unable to exec redirfd: No such file or directory
+
+real	0m0.002s
+user	0m0.000s
+sys	0m0.001s
+rm: cannot remove 'f': No such file or directory
+execlineb: fatal: unable to exec redirfd: No such file or directory
+Max Resident Set Size:	540
+Block Input:	0
+Block Output:	8
+Page Reclaims:	174
+Page Faults:	0
+Voluntary Context Switches:	5
+Involuntary Context Switches:	1
+
+********** EXECLINE TEST 2-3 **********
+execlineb: fatal: unable to exec redirfd: No such file or directory
+
+real	0m0.002s
+user	0m0.000s
+sys	0m0.001s
+rm: cannot remove 'f': No such file or directory
+execlineb: fatal: unable to exec redirfd: No such file or directory
+Max Resident Set Size:	548
+Block Input:	0
+Block Output:	8
+Page Reclaims:	176
+Page Faults:	0
+Voluntary Context Switches:	5
+Involuntary Context Switches:	1
+
+********** EXECLINE TEST 2-4 **********
+execlineb: fatal: unable to exec redirfd: No such file or directory
+
+real	0m0.008s
+user	0m0.000s
+sys	0m0.001s
+rm: cannot remove 'f': No such file or directory
+execlineb: fatal: unable to exec redirfd: No such file or directory
+Max Resident Set Size:	540
+Block Input:	0
+Block Output:	8
+Page Reclaims:	175
+Page Faults:	0
+Voluntary Context Switches:	5
+Involuntary Context Switches:	1
+
+********** EXECLINE TEST 2-5 **********
+execlineb: fatal: unable to exec redirfd: No such file or directory
+
+real	0m0.002s
+user	0m0.000s
+sys	0m0.001s
+rm: cannot remove 'f': No such file or directory
+execlineb: fatal: unable to exec redirfd: No such file or directory
+Max Resident Set Size:	540
+Block Input:	0
+Block Output:	8
+Page Reclaims:	175
+Page Faults:	0
+Voluntary Context Switches:	5
+Involuntary Context Switches:	1
+
+diff: f: No such file or directory
+rm: cannot remove 'f': No such file or directory
+*************************TEST 3*************************
+********** BASH TEST 3-1 **********
+
+real	0m0.140s
+user	0m0.006s
+sys	0m0.129s
+Max resident set size:	712
+Block Input	0
+Block Output	0
+Page Reclaims:	226
+Page Faults:	0
+Voluntary context switches:	2
+Involuntary context switches:	1
+
+********** BASH TEST 3-2 **********
+
+real	0m0.121s
+user	0m0.008s
+sys	0m0.107s
+Max resident set size:	712
+Block Input	0
+Block Output	0
+Page Reclaims:	225
+Page Faults:	0
+Voluntary context switches:	2
+Involuntary context switches:	1
+
+********** BASH TEST 3-3 **********
+
+real	0m0.120s
+user	0m0.007s
+sys	0m0.113s
+Max resident set size:	716
+Block Input	0
+Block Output	0
+Page Reclaims:	226
+Page Faults:	0
+Voluntary context switches:	2
+Involuntary context switches:	1
+
+********** BASH TEST 3-4 **********
+
+real	0m0.118s
+user	0m0.009s
+sys	0m0.111s
+Max resident set size:	712
+Block Input	0
+Block Output	0
+Page Reclaims:	225
+Page Faults:	0
+Voluntary context switches:	2
+Involuntary context switches:	1
+
+********** BASH TEST 3-5 **********
+
+real	0m0.119s
+user	0m0.012s
+sys	0m0.108s
+Max resident set size:	712
+Block Input	0
+Block Output	0
+Page Reclaims:	225
+Page Faults:	0
+Voluntary context switches:	2
+Involuntary context switches:	1
+
+********** SIMPSH TEST 3-1 **********
+Profiling rdonly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000085s
+  Max resident set size:        0kB
+  Page reclaims:                1
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   2
+  Involuntary context switches: 0
+Profiling wronly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000046s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   1
+  Involuntary context switches: 0
+Profiling wronly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000040s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   1
+  Involuntary context switches: 0
+Profiling pipe...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000010s
+  Max resident set size:        0kB
+  Page reclaims:                1
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling pipe...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000004s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling head...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000068s
+  Max resident set size:        0kB
+  Page reclaims:                11
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling tr...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000055s
+  Max resident set size:        0kB
+  Page reclaims:                7
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling cat...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000075s
+  Max resident set size:        0kB
+  Page reclaims:                7
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling close...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000008s
+  Max resident set size:        0kB
+  Page reclaims:                2
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling close...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000002s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+0 head -c 1MB /dev/urandom 
+0 tr -s A-Z a-z 
+0 cat 
+Profiling total CHILD usage...
+  User CPU Time:                0.008947s
+  System CPU Time:              0.113791s
+  Max resident set size:        716kB
+  Page reclaims:                681
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             1952
+  Voluntary context switches:   303
+  Involuntary context switches: 18
+Profiling total PARENT usage...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000393s
+  Max resident set size:        0kB
+  Page reclaims:                29
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   4
+  Involuntary context switches: 0
+Profiling total PARENT + CHILD usage...
+  User CPU Time:                0.008947s
+  System CPU Time:              0.114184s
+  Max resident set size:        716kB
+  Page reclaims:                710
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             1952
+  Voluntary context switches:   307
+  Involuntary context switches: 18
+
+********** SIMPSH TEST 3-2 **********
+Profiling rdonly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000097s
+  Max resident set size:        0kB
+  Page reclaims:                1
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   2
+  Involuntary context switches: 0
+Profiling wronly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000053s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   2
+  Involuntary context switches: 0
+Profiling wronly...
+  User CPU Time:                0.000329s
+  System CPU Time:              0.000000s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   2
+  Involuntary context switches: 0
+Profiling pipe...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000000s
+  Max resident set size:        0kB
+  Page reclaims:                1
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling pipe...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000000s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling head...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000000s
+  Max resident set size:        0kB
+  Page reclaims:                11
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling tr...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000000s
+  Max resident set size:        0kB
+  Page reclaims:                7
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling cat...
+  User CPU Time:                0.000081s
+  System CPU Time:              0.000000s
+  Max resident set size:        0kB
+  Page reclaims:                7
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling close...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000000s
+  Max resident set size:        0kB
+  Page reclaims:                2
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling close...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000000s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+0 head -c 1MB /dev/urandom 
+0 tr -s A-Z a-z 
+0 cat 
+Profiling total CHILD usage...
+  User CPU Time:                0.014100s
+  System CPU Time:              0.112446s
+  Max resident set size:        716kB
+  Page reclaims:                683
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             1952
+  Voluntary context switches:   299
+  Involuntary context switches: 18
+Profiling total PARENT usage...
+  User CPU Time:                0.000410s
+  System CPU Time:              0.000150s
+  Max resident set size:        0kB
+  Page reclaims:                29
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   6
+  Involuntary context switches: 0
+Profiling total PARENT + CHILD usage...
+  User CPU Time:                0.014510s
+  System CPU Time:              0.112596s
+  Max resident set size:        716kB
+  Page reclaims:                712
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             1952
+  Voluntary context switches:   305
+  Involuntary context switches: 18
+
+********** SIMPSH TEST 3-3 **********
+Profiling rdonly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000079s
+  Max resident set size:        0kB
+  Page reclaims:                1
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   2
+  Involuntary context switches: 0
+Profiling wronly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000040s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   1
+  Involuntary context switches: 0
+Profiling wronly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000053s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   2
+  Involuntary context switches: 0
+Profiling pipe...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000010s
+  Max resident set size:        0kB
+  Page reclaims:                1
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling pipe...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000003s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling head...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000082s
+  Max resident set size:        0kB
+  Page reclaims:                11
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling tr...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000068s
+  Max resident set size:        0kB
+  Page reclaims:                7
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling cat...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000071s
+  Max resident set size:        0kB
+  Page reclaims:                7
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling close...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000008s
+  Max resident set size:        0kB
+  Page reclaims:                2
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling close...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000001s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+0 head -c 1MB /dev/urandom 
+0 tr -s A-Z a-z 
+0 cat 
+Profiling total CHILD usage...
+  User CPU Time:                0.009302s
+  System CPU Time:              0.106781s
+  Max resident set size:        716kB
+  Page reclaims:                683
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             1952
+  Voluntary context switches:   418
+  Involuntary context switches: 18
+Profiling total PARENT usage...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000415s
+  Max resident set size:        0kB
+  Page reclaims:                29
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   5
+  Involuntary context switches: 0
+Profiling total PARENT + CHILD usage...
+  User CPU Time:                0.009302s
+  System CPU Time:              0.107196s
+  Max resident set size:        716kB
+  Page reclaims:                712
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             1952
+  Voluntary context switches:   423
+  Involuntary context switches: 18
+
+********** SIMPSH TEST 3-4 **********
+Profiling rdonly...
+  User CPU Time:                0.000073s
+  System CPU Time:              0.000000s
+  Max resident set size:        0kB
+  Page reclaims:                1
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   2
+  Involuntary context switches: 0
+Profiling wronly...
+  User CPU Time:                0.000030s
+  System CPU Time:              0.000000s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   1
+  Involuntary context switches: 0
+Profiling wronly...
+  User CPU Time:                0.000057s
+  System CPU Time:              0.000000s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   2
+  Involuntary context switches: 0
+Profiling pipe...
+  User CPU Time:                0.000008s
+  System CPU Time:              0.000000s
+  Max resident set size:        0kB
+  Page reclaims:                1
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling pipe...
+  User CPU Time:                0.000003s
+  System CPU Time:              0.000000s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling head...
+  User CPU Time:                0.000072s
+  System CPU Time:              0.000000s
+  Max resident set size:        0kB
+  Page reclaims:                11
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling tr...
+  User CPU Time:                0.000066s
+  System CPU Time:              0.000000s
+  Max resident set size:        0kB
+  Page reclaims:                7
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling cat...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000501s
+  Max resident set size:        0kB
+  Page reclaims:                7
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling close...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000000s
+  Max resident set size:        0kB
+  Page reclaims:                2
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling close...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000000s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+0 head -c 1MB /dev/urandom 
+0 tr -s A-Z a-z 
+0 cat 
+Profiling total CHILD usage...
+  User CPU Time:                0.008002s
+  System CPU Time:              0.109037s
+  Max resident set size:        712kB
+  Page reclaims:                678
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             1952
+  Voluntary context switches:   404
+  Involuntary context switches: 18
+Profiling total PARENT usage...
+  User CPU Time:                0.000309s
+  System CPU Time:              0.000501s
+  Max resident set size:        0kB
+  Page reclaims:                29
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   5
+  Involuntary context switches: 0
+Profiling total PARENT + CHILD usage...
+  User CPU Time:                0.008311s
+  System CPU Time:              0.109538s
+  Max resident set size:        712kB
+  Page reclaims:                707
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             1952
+  Voluntary context switches:   409
+  Involuntary context switches: 18
+
+********** SIMPSH TEST 3-5 **********
+Profiling rdonly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000071s
+  Max resident set size:        0kB
+  Page reclaims:                1
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   2
+  Involuntary context switches: 0
+Profiling wronly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000030s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   1
+  Involuntary context switches: 0
+Profiling wronly...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000044s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   2
+  Involuntary context switches: 0
+Profiling pipe...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000007s
+  Max resident set size:        0kB
+  Page reclaims:                1
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling pipe...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000003s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling head...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000068s
+  Max resident set size:        0kB
+  Page reclaims:                11
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling tr...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000069s
+  Max resident set size:        160kB
+  Page reclaims:                7
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling cat...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000056s
+  Max resident set size:        0kB
+  Page reclaims:                7
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling close...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000009s
+  Max resident set size:        0kB
+  Page reclaims:                2
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+Profiling close...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000001s
+  Max resident set size:        0kB
+  Page reclaims:                0
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   0
+  Involuntary context switches: 0
+0 head -c 1MB /dev/urandom 
+0 tr -s A-Z a-z 
+0 cat 
+Profiling total CHILD usage...
+  User CPU Time:                0.009761s
+  System CPU Time:              0.106457s
+  Max resident set size:        716kB
+  Page reclaims:                680
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             1952
+  Voluntary context switches:   420
+  Involuntary context switches: 18
+Profiling total PARENT usage...
+  User CPU Time:                0.000000s
+  System CPU Time:              0.000358s
+  Max resident set size:        160kB
+  Page reclaims:                29
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             0
+  Voluntary context switches:   5
+  Involuntary context switches: 0
+Profiling total PARENT + CHILD usage...
+  User CPU Time:                0.009761s
+  System CPU Time:              0.106815s
+  Max resident set size:        716kB
+  Page reclaims:                709
+  Page faults:                  0
+  Block input Ops:              0
+  Block output Ops:             1952
+  Voluntary context switches:   425
+  Involuntary context switches: 18
+
+********** EXECLINE TEST 3-1 **********
+execlineb: fatal: unable to exec redirfd: No such file or directory
+
+real	0m0.002s
+user	0m0.000s
+sys	0m0.001s
+rm: cannot remove 'g': No such file or directory
+execlineb: fatal: unable to exec redirfd: No such file or directory
+Max Resident Set Size:	548
+Block Input:	0
+Block Output:	8
+Page Reclaims:	176
+Page Faults:	0
+Voluntary Context Switches:	5
+Involuntary Context Switches:	1
+
+********** EXECLINE TEST 3-2 **********
+execlineb: fatal: unable to exec redirfd: No such file or directory
+
+real	0m0.002s
+user	0m0.001s
+sys	0m0.000s
+rm: cannot remove 'g': No such file or directory
+execlineb: fatal: unable to exec redirfd: No such file or directory
+Max Resident Set Size:	544
+Block Input:	0
+Block Output:	8
+Page Reclaims:	175
+Page Faults:	0
+Voluntary Context Switches:	5
+Involuntary Context Switches:	1
+
+********** EXECLINE TEST 3-3 **********
+execlineb: fatal: unable to exec redirfd: No such file or directory
+
+real	0m0.002s
+user	0m0.001s
+sys	0m0.000s
+rm: cannot remove 'g': No such file or directory
+execlineb: fatal: unable to exec redirfd: No such file or directory
+Max Resident Set Size:	540
+Block Input:	0
+Block Output:	8
+Page Reclaims:	174
+Page Faults:	0
+Voluntary Context Switches:	5
+Involuntary Context Switches:	1
+
+********** EXECLINE TEST 3-4 **********
+execlineb: fatal: unable to exec redirfd: No such file or directory
+
+real	0m0.002s
+user	0m0.000s
+sys	0m0.001s
+rm: cannot remove 'g': No such file or directory
+execlineb: fatal: unable to exec redirfd: No such file or directory
+Max Resident Set Size:	544
+Block Input:	0
+Block Output:	8
+Page Reclaims:	176
+Page Faults:	0
+Voluntary Context Switches:	5
+Involuntary Context Switches:	1
+
+********** EXECLINE TEST 3-5 **********
+execlineb: fatal: unable to exec redirfd: No such file or directory
+
+real	0m0.002s
+user	0m0.000s
+sys	0m0.001s
+rm: cannot remove 'g': No such file or directory
+execlineb: fatal: unable to exec redirfd: No such file or directory
+Max Resident Set Size:	544
+Block Input:	0
+Block Output:	8
+Page Reclaims:	175
+Page Faults:	0
+Voluntary Context Switches:	5
+Involuntary Context Switches:	1
+
+rm: cannot remove 'g': No such file or directory
