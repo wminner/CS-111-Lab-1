@@ -11,8 +11,10 @@ Lab 1 - Simpleton Shell
 Makefile functionality:
 * make: compiles program 'simpsh'
 * make dist: packages files into tarball and does some checks
-* make check: performs some simple tests on simpsh
-* make clean: removes all files created from 'make' and 'test.sh'
+* make check: executes test.sh, which performs some simple tests on simpsh
+* make clean: removes all files created from 'make', 'test.sh', and 'time.sh'
+* make time: executes time.sh, which profiles bash, simpsh, and execline and 
+	places the results into file 'time_results'
 
 
 simpsh functionality:
@@ -85,8 +87,8 @@ Lab 1b TODO:
 
 
 Lab 1c TODO:
-* perform test cases on all shells and compare results in document
-* find out why 'time' cannot track execline in a script
+* N/A
+
 
 Lab 1b Design Problem TODO:
 * N/A
@@ -121,5 +123,9 @@ Notes:
   
   
 Known Issues:
-* None known
-
+* Execline command "pipeline { prog1 } prog2..." creates a child process and 
+  executes prog1.  The bash 'time' command fails to track this child process 
+  when execline is executed through a script.  Therefore our performance results
+  are inaccurate as the execline test cases all suffered from this inaccuracy.  
+  We could not determine a way to gather child time values within the 
+  limitations of the execline syntax and within the time constraints on the lab.
